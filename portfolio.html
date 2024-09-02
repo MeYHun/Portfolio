@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yong Hun Na - Software Engineer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+        
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+        }
+        
+        body, html {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: var(--bg-color);
+        }
+        .container {
+            display: flex;
+            height: 100%;
+            overflow: hidden;
+        }
+        .left-column {
+            width: 30%;
+            padding: 40px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+        }
+        .right-column {
+            width: 70%;
+            background: linear-gradient(to right, #fff, var(--bg-color));
+            overflow-y: auto;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            margin-bottom: 1rem;
+        }
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 300;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover, nav ul li a.active {
+            color: #666;
+        }
+        .bio {
+            font-size: 0.9rem;
+            font-weight: 300;
+            max-width: 300px;
+            text-align: right;
+            margin-left: auto;
+        }
+        .dark-mode-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .job, .project {
+            margin-bottom: 2rem;
+        }
+        .job {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .job-logo {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        .job-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .job-details {
+            flex-grow: 1;
+        }
+        .job h3, .project h3 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+        .job p, .project p {
+            margin-top: 0;
+            font-style: italic;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .skill {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+        .about-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .bio {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            max-width: 300px;
+            text-align: right;
+            font-size: 0.9rem;
+            font-weight: 300;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10; /* Ensure it's above other content */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <div>
+                <h1>Yong Hun Na</h1>
+                <p class="subtitle">Software Engineer</p>
+                <nav>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#experience">Experience</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="#skills">Skills</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <button class="dark-mode-toggle">DARK</button>
+        </div>
+        <div class="right-column">
+            <p class="bio">
+                Born in South Korea.
+                I believe software engineering
+                can be more diverse and inspiring.
+                With a mission to innovate
+                and solve real-world problems,
+                I am pursuing new expressions
+                through code and technology.
+            </p>
+            <div id="main" class="tab-content active">
+                <!-- Empty main page -->
+            </div>
+            
+            <div id="about" class="tab-content">
+                <div class="about-image">
+                    <img src="images/IMG_3952.JPG" alt="Yong Hun Na">
+                </div>
+                <h2>About Me</h2>
+                <p>
+                    I'm <span class="about-highlight">Yong Hun Na</span>, a software engineer, problem solver, and technology enthusiast. The intersection of technology and innovation has always captivated me, and I've never shied away from diving into new challenges, whether it's Python, Java, or the latest web technologies.
+                </p>
+                <p>
+                    My journey in software engineering began with my first "Hello, World!" program, and since then, I've explored various facets of the field. From <span class="about-highlight">backend development</span> to <span class="about-highlight">frontend design</span>, from <span class="about-highlight">database management</span> to <span class="about-highlight">cloud computing</span>, I've embraced it all.
+                </p>
+                <p>
+                    What excites me most about being a Software Engineer is the ability to create solutions that have <span class="about-highlight">real-world impact</span> and solve complex problems. It goes beyond writing code; it's about understanding user needs, architecting robust systems, and delivering efficient, scalable solutions.
+                </p>
+                </div>
+            
+            <div id="experience" class="tab-content">
+                <h2>Experience</h2>
+                <div class="job">
+                    <div class="job-logo">
+                        <img src="images/skcc.jpeg" alt="SK C&C USA Logo">
+                    </div>
+                    <div class="job-details">
+                        <h3>Software Operator - SK C&C USA</h3>
+                        <p>Georgia, USA | July 2023 - Present</p>
+                        <ul>
+                            <li>Reduced equipment downtime by 25%, increasing overall operational efficiency by 15%.</li>
+                            <li>Improved data grouping, leading to increased production efficiency and a 5% reduction in error rates.</li>
+                            <li>Implemented a preventive maintenance program, decreasing equipment breakdowns by 15%.</li>
+                            <li>Spearheaded the implementation of a real-time data analytics platform.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="job">
+                    <div class="job-logo">
+                        <img src="/images/seerslab.jpeg" alt="Seerslab Logo">
+                    </div>
+                    <div class="job-details">
+                        <h3>Intern - Seerslab</h3>
+                        <p>Seoul, South Korea | May 2022 - August 2022</p>
+                        <ul>
+                            <li>Collaborated on Metaverse-related research projects with cross-functional teams.</li>
+                            <li>Developed a Lambda program with Python on AWS, achieving 99% accuracy in phone number classification.</li>
+                            <li>Optimized server speed checking functionalities and front-end features using React and SQL.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="job">
+                    <div class="job-logo">
+                        <img src="images/umcp2.png" alt="University of Maryland Logo">
+                    </div>
+                    <div class="job-details">
+                        <h3>Education</h3>
+                        <p>Bachelor of Science in Computer Science</p>
+                        <p>University of Maryland – College Park, MD 20742, United States</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="projects" class="tab-content">
+                <h2>Projects</h2>
+                <div class="project">
+                    <h3>Pose Estimation Fitness Tracker</h3>
+                    <p>May 2022 - July 2022</p>
+                    <ul>
+                        <li>Developed a real-time workout pose detector using Python, OpenCV, and MediaPipe.</li>
+                        <li>Integrated curl counter and angle calculator for improved user experience.</li>
+                    </ul>
+                </div>
+                <div class="project">
+                    <h3>Terp Pro Android App</h3>
+                    <p>June 2022 - August 2022</p>
+                    <ul>
+                        <li>Developed an Android application using Kotlin and Firebase Realtime Database.</li>
+                        <li>Implemented a Recycler View-based interface using MVC architecture.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="skills" class="tab-content">
+                <h2>Skills</h2>
+                <div class="skills">
+                    <span class="skill">Python</span>
+                    <span class="skill">Java</span>
+                    <span class="skill">C</span>
+                    <span class="skill">Git</span>
+                    <span class="skill">SQL</span>
+                    <span class="skill">Linux</span>
+                    <span class="skill">Unix</span>
+                    <span class="skill">MongoDB</span>
+                    <span class="skill">JavaScript</span>
+                    <span class="skill">Node.js</span>
+                    <span class="skill">Express</span>
+                    <span class="skill">HTML/CSS</span>
+                    <span class="skill">AWS</span>
+                    <span class="skill">React</span>
+                    <span class="skill">Leadership</span>
+                </div>
+                <h3>Additional Skills</h3>
+                <p>Software Development / Web Development / Cloud Computing / Database Management / Agile Methodologies / Problem Solving / Team Collaboration / Continuous Learning</p>
+                <h3>Languages</h3>
+                <p>Fluent in Korean and English</p>
+            </div>
+            
+            <div id="contact" class="tab-content">
+                <h2>Contact</h2>
+                <p><strong>Email:</strong> <a href="mailto:yna08@terpmail.umd.edu">yna08@terpmail.umd.edu</a></p>
+                <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/yonghun-na/" target="_blank">linkedin.com/in/yonghun-na</a></p>
+                <p><strong>GitHub:</strong> <a href="https://github.com/MeYHun" target="_blank">github.com/MeYHun</a></p>
+                <p><strong>Location:</strong> 1045 Old peach Tree NW Suwanee 30024, GA, USA</p>
+                <p><strong>Phone:</strong> (443)458-8330</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('nav ul li a');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const darkModeToggle = document.querySelector('.dark-mode-toggle');
+        const body = document.body;
+        const bio = document.querySelector('.bio');
+
+        function showContent(tabId) {
+            tabContents.forEach(content => content.classList.remove('active'));
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+            bio.style.display = tabId === 'main' ? 'block' : 'none';
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = tab.getAttribute('href').substring(1);
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+
+                // Hide bio when a tab is clicked
+                bio.style.display = 'none';
+            });
+        });
+
+        darkModeToggle.addEventListener('click', () => {
+            // ... (keep the existing dark mode toggle logic) ...
+        });
+
+        // Show main content and bio on page load
+        showMainContent();
+
+        // Add event listener to the name/title to return to main page
+        document.querySelector('h1').addEventListener('click', showMainContent);
+    </script>
+
+</body>
+</html>
