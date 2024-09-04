@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +9,45 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
         
+        
         :root {
             --bg-color: #f0f0f0;
             --text-color: #333;
+            --container-bg: #fff;
+            --highlight-color: #5eb5da;
+            --skill-bg: #e0e0e0;
+            --skill-text: #333;
+            --contact-bg: #ffffff;
+            --contact-text: #333333;
+            --input-bg: #f0f0f0;
+            --input-text: #333333;
+            --button-bg: #5eb5da;
+            --button-text: #ffffff;
+            --link-color: #5eb5da;
+            --button-hover-bg: #2a4751;
+            --button-hover-text: #ffffff;
+            --cube-border-color: #fffff;
         }
         
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --container-bg: #2a2a2a;
+            --highlight-color: #7ec8e3;
+            --skill-bg: #4a4a4a;
+            --skill-text: #f0f0f0;
+            --contact-bg: #2a2a2a;
+            --contact-text: #f0f0f0;
+            --input-bg: #3a3a3a;
+            --input-text: #f0f0f0;
+            --button-bg: #7ec8e3;
+            --button-text: #1a1a1a;
+            --link-color: #7ec8e3;
+            --button-hover-bg: #9ad4eb;
+            --button-hover-text: #1a1a1a;
+            --cube-border-color: #1h1h1h;
+        }
+
         body, html {
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
@@ -20,29 +56,92 @@
             padding: 0;
             height: 100%;
             background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
         }
+
+        /* 3D Cube Styles */
+        .cube-container {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 50%;
+            left: 36%;
+            transform: translate(-50%, -50%);
+            perspective: 2000px;
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 20s infinite linear;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 3px solid var(--cube-border-color);
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--text-color);
+            background-color: var(--cube-border-color);
+        }
+
+        .front  { transform: rotateY(0deg) translateZ(150px); }
+        .right  { transform: rotateY(90deg) translateZ(150px); }
+        .back   { transform: rotateY(180deg) translateZ(150px); }
+        .left   { transform: rotateY(-90deg) translateZ(150px); }
+        .top    { transform: rotateX(90deg) translateZ(150px); }
+        .bottom { transform: rotateX(-90deg) translateZ(150px); }
+
+        @keyframes rotate {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        #main.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #main {
+            display: none;
+        }
+
         .container {
             display: flex;
             height: 100%;
             overflow: hidden;
         }
         .left-column {
-            width: 30%;
+            width: 20%;
             padding: 40px;
-            background-color: #fff;
+            background-color: var(--container-bg);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow-y: auto;
         }
+
         .right-column {
-            width: 70%;
-            background: linear-gradient(to right, #fff, var(--bg-color));
+            position: relative; /* Keeps positioned elements inside under contorl */
+            width: 80%;
+            background: linear-gradient(to right, var(--container-bg), var(--bg-color));
             overflow-y: auto;
             padding: 40px;
         }
+
         h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
@@ -127,25 +226,79 @@
             margin-bottom: 2rem;
         }
         .skill {
-            background-color: #e0e0e0;
+            background-color: var(--skill-bg);
             color: var(--text-color);
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 300;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
+        .skill:hover {
+            background-color: var(--highlight-color);
+            color: var(--bg-color);
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .skill:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        #about {
+            display: none;
+        }
+
+        #about.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .about-content {
+            display: flex;
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+        
         .about-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 1rem;
+            flex: 1;
+            max-width: 400px;
         }
+        
         .about-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: 90%;
+            height: auto;
+            border-radius: 10px;
         }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-text h1 {
+            font-size: 2.0rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .highlight {
+            border-bottom: 2px solid #5eb5da;
+        }
+
+        .highlight {
+            border-bottom: 2px solid var(--highlight-color);
+        }
+        
+        .about-text p {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
         .bio {
             position: absolute;
             bottom: 20px;
@@ -159,6 +312,96 @@
             z-index: 10; /* Ensure it's above other content */
         }
         
+        #contact {
+            background-color: var(--contact-bg);
+            color: var(--contact-text);
+            padding: 2rem;
+            border-radius: 8px;
+            height: calc(100% - 4rem); /* 패딩을 고려하여 높이 조정 */
+            transition: background-color 0.3s, color 0.3s;
+
+        }
+        
+        #contact h2 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        #contact h2 svg {
+            margin-right: 0.5rem;
+        }
+        
+        .contact-container {
+            display: flex;
+            gap: 18rem;
+        }
+        
+        .contact-form {
+            flex: 1;
+        }
+        
+        .contact-form input,
+        .contact-form textarea {
+            width: 150%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--highlight-color);
+            border-radius: 4px;
+            color: var(--input-text);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
+        }
+        
+        .contact-form button {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, transform 0.2s;
+            font-weight: bold;
+        }
+        
+        .contact-form button:hover {
+            background-color: var(--button-hover-bg);
+            color: var(--button-hover-text);
+            transform: translateY(-2px);
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-info p {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .contact-info svg {
+            margin-right: 0.5rem;
+            color: var(--highlight-color);
+        }
+
+        .contact-info a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -179,6 +422,7 @@
             </div>
             <button class="dark-mode-toggle">DARK</button>
         </div>
+
         <div class="right-column">
             <p class="bio">
                 Born in South Korea.
@@ -190,24 +434,38 @@
                 through code and technology.
             </p>
             <div id="main" class="tab-content active">
-                <!-- Empty main page -->
+                <div class="cube-container">
+                    <div class="cube">
+                        <div class="cube-face front">Code</div>
+                        <div class="cube-face back">Innovate</div>
+                        <div class="cube-face right">Solve</div>
+                        <div class="cube-face left">Create</div>
+                        <div class="cube-face top">Adapt</div>
+                        <div class="cube-face bottom">Connect</div>
+                    </div>
+                </div>
             </div>
             
             <div id="about" class="tab-content">
-                <div class="about-image">
-                    <img src="images/IMG_3952.JPG" alt="Yong Hun Na">
+                <div class="about-content">
+                    <div class="about-image">
+                        <img src="images/IMG_3952.JPG" alt="Yong Hun Na">
+                    </div>
+                    <div class="about-text">
+                        <h1>I'm Yong Hun Na, a Software Engineer working for <span class="highlight">SK C&C USA</span></h1>
+                        <p></p>
+                        <p>
+                            I've spent the past few years working across different areas of software engineering: backend development, frontend design, database management, to my current role developing data solutions for enterprise platforms.
+                        </p>
+                        <p>
+                            These days my time is spent researching, coding, and implementing efficient data processing systems. I also help reduce equipment downtime and improve operational efficiency.
+                        </p>
+                        <p>
+                            Out of the office you'll find me exploring new technologies, solving complex problems, and contributing to open-source projects.
+                        </p>
+                    </div>
                 </div>
-                <h2>About Me</h2>
-                <p>
-                    I'm <span class="about-highlight">Yong Hun Na</span>, a software engineer, problem solver, and technology enthusiast. The intersection of technology and innovation has always captivated me, and I've never shied away from diving into new challenges, whether it's Python, Java, or the latest web technologies.
-                </p>
-                <p>
-                    My journey in software engineering began with my first "Hello, World!" program, and since then, I've explored various facets of the field. From <span class="about-highlight">backend development</span> to <span class="about-highlight">frontend design</span>, from <span class="about-highlight">database management</span> to <span class="about-highlight">cloud computing</span>, I've embraced it all.
-                </p>
-                <p>
-                    What excites me most about being a Software Engineer is the ability to create solutions that have <span class="about-highlight">real-world impact</span> and solve complex problems. It goes beyond writing code; it's about understanding user needs, architecting robust systems, and delivering efficient, scalable solutions.
-                </p>
-                </div>
+            </div>
             
             <div id="experience" class="tab-content">
                 <h2>Experience</h2>
@@ -296,17 +554,46 @@
                 <h3>Languages</h3>
                 <p>Fluent in Korean and English</p>
             </div>
-            
+        
+
             <div id="contact" class="tab-content">
-                <h2>Contact</h2>
-                <p><strong>Email:</strong> <a href="mailto:yna08@terpmail.umd.edu">yna08@terpmail.umd.edu</a></p>
-                <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/yonghun-na/" target="_blank">linkedin.com/in/yonghun-na</a></p>
-                <p><strong>GitHub:</strong> <a href="https://github.com/MeYHun" target="_blank">github.com/MeYHun</a></p>
-                <p><strong>Location:</strong> 1045 Old peach Tree NW Suwanee 30024, GA, USA</p>
-                <p><strong>Phone:</strong> (443)458-8330</p>
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    Get in touch.
+                </h2>
+                <div class="contact-container">
+                    <div class="contact-form">
+                        <form>
+                            <input type="text" placeholder="Name" required>
+                            <input type="email" placeholder="Email" required>
+                            <textarea placeholder="Message" rows="10" required></textarea>
+                            <button type="submit">Send Message</button>
+                        </form>
+                    </div>
+                    <div class="contact-info">
+                        <p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <a href="mailto:yna08@terpmail.umd.edu">yna08@terpmail.umd.edu</a>
+                        </p>
+                        <p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                            <a href="https://www.linkedin.com/in/yonghun-na/" target="_blank" rel="noopener noreferrer">yonghun-na</a>
+                        </p>
+                        <p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                            <a href="https://github.com/MeYHun" target="_blank" rel="noopener noreferrer">MeYHun</a>
+                        </p>
+                        <p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            <a href="https://www.instagram.com/n_y___h/" target="_blank" rel="noopener noreferrer">@n_y___h</a>
+                        </p>
+                    </div>
+                </div>
             </div>
+        
         </div>
     </div>
+
 
     <script>
         const tabs = document.querySelectorAll('nav ul li a');
@@ -314,7 +601,33 @@
         const darkModeToggle = document.querySelector('.dark-mode-toggle');
         const body = document.body;
         const bio = document.querySelector('.bio');
+        
+        // 다크 모드 토글 함수
+        function toggleDarkMode() {
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
 
+            const skills = document.querySelectorAll('.skill');
+            skills.forEach(skill => {
+                skill.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--skill-bg');
+                skill.style.color = getComputedStyle(document.documentElement).getPropertyValue('--skill-text');
+            });
+        }
+        
+        // 저장된 다크 모드 설정 불러오기
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            body.classList.add('dark-mode');
+            darkModeToggle.textContent = 'LIGHT';
+        }
+        
+        // 다크 모드 버튼 이벤트 리스너
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+        
+        // ... (기존 탭 관련 스크립트 유지) ...
+        
         function showContent(tabId) {
             tabContents.forEach(content => content.classList.remove('active'));
             const selectedContent = document.getElementById(tabId);
@@ -323,31 +636,28 @@
             }
             bio.style.display = tabId === 'main' ? 'block' : 'none';
         }
-
+        
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
                 const tabId = tab.getAttribute('href').substring(1);
                 
                 tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-
                 tab.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-
-                // Hide bio when a tab is clicked
-                bio.style.display = 'none';
+                
+                showContent(tabId);
             });
         });
-
-        darkModeToggle.addEventListener('click', () => {
-            // ... (keep the existing dark mode toggle logic) ...
-        });
-
-        // Show main content and bio on page load
+        
+        function showMainContent() {
+            showContent('main');
+            tabs.forEach(t => t.classList.remove('active'));
+        }
+        
+        // 페이지 로드시 메인 컨텐츠 표시
         showMainContent();
-
-        // Add event listener to the name/title to return to main page
+        
+        // 이름/제목 클릭시 메인 페이지로 돌아가기
         document.querySelector('h1').addEventListener('click', showMainContent);
     </script>
 
