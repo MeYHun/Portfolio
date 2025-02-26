@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +8,7 @@
     <title>Yong Hun Na - Software Engineer</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+        
         
         
         :root {
@@ -47,6 +50,7 @@
             --cube-border-color: #1h1h1h;
             --about-bg-color: linear-gradient(135deg, #5a5a5a 0%, #111111 100%);
         }
+
 
         body, html {
             font-family: 'Inter', sans-serif;
@@ -126,11 +130,13 @@
             width: 15%;
             padding: 40px;
             background-color: var(--container-bg);
+            background-color: var(--container-bg);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow-y: auto;
         }
+
 
         .right-column {
             position: relative; /* Keeps positioned elements inside under contorl */
@@ -140,7 +146,9 @@
             padding: 60px;
         }
 
+
         h1 {
+            font-size: 2rem;
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
@@ -226,6 +234,7 @@
             margin-bottom: 2rem;
         }
         .skill {
+            background-color: var(--skill-bg);
             background-color: var(--skill-bg);
             color: var(--text-color);
             padding: 0.3rem 0.8rem;
@@ -586,6 +595,7 @@
             <button class="dark-mode-toggle">DARK</button>
         </div>
 
+
         <div class="right-column">
             <p class="bio">
                 Born in South Korea.
@@ -597,6 +607,16 @@
                 through code and technology.
             </p>
             <div id="main" class="tab-content active">
+                <div class="cube-container">
+                    <div class="cube">
+                        <div class="cube-face front">Code</div>
+                        <div class="cube-face back">Innovate</div>
+                        <div class="cube-face right">Solve</div>
+                        <div class="cube-face left">Create</div>
+                        <div class="cube-face top">Adapt</div>
+                        <div class="cube-face bottom">Connect</div>
+                    </div>
+                </div>
                 <div class="cube-container">
                     <div class="cube">
                         <div class="cube-face front">Code</div>
@@ -772,6 +792,8 @@
                 <h3>Languages</h3>
                 <p>Fluent in Korean and English</p>
             </div>
+        
+
         
 
             <div id="contact" class="tab-content">
@@ -996,6 +1018,7 @@
             bio.style.display = tabId === 'main' ? 'block' : 'none';
         }
         
+        
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1027,7 +1050,16 @@
         }
         
         // 페이지 로드시 메인 컨텐츠 표시
+        
+        function showMainContent() {
+            showContent('main');
+            tabs.forEach(t => t.classList.remove('active'));
+        }
+        
+        // 페이지 로드시 메인 컨텐츠 표시
         showMainContent();
+        
+        // 이름/제목 클릭시 메인 페이지로 돌아가기
         
         // 이름/제목 클릭시 메인 페이지로 돌아가기
         document.querySelector('h1').addEventListener('click', showMainContent);
