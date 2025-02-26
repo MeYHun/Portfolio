@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -445,17 +443,16 @@
         .contact-info a:hover {
             text-decoration: underline;
         }
-
         #visualizer-layout {
-
-            display: flex;
-            flex-direction: row; /* Place graph and steps container side by side */
-            gap: 20px;
-            width: 100%; /* Take full width */
-            align-items: flex-start; /* Align items at the top */
-            max-width: 100%; /* Ensure it doesn't overflow the parent container */
-            overflow: hidden; /* Prevent content from spilling outside */
-            box-sizing: border-box; /* Include padding and border in width/height calculations */
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* 2:1 ratio for better balance */
+            width: 100%;
+            max-width: 1200px;
+            align-items: flex-start;
+            min-height: 500px;
+            height: auto;
+            gap: 10px;
+            box-sizing: border-box;
         }
 
         #visualizer-container {
@@ -468,9 +465,14 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            width: 100%;
             height: auto;
+            min-height: 600px; /* Increased to prevent overflow */
+            max-height: 800px; /* Prevents it from growing too much */
             margin-top: 20px;
+            position: relative;
         }
+
         #algorithm-selection {
             margin-bottom: 20px;
             display: flex;
@@ -483,39 +485,79 @@
         }
         #run-algorithm {
             padding: 5px 10px;
-            background-color: var(--highlight-color);
-            color: var(--button-text);
+            background-color: #5eb5da;
+            color: #ffffff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         #run-algorithm:hover {
-            background-color: var(--button-hover-bg);
+            background-color: #2a4751;
         }
         #algorithm-visualizer {
-            flex: 3; /* Allocate more space for the graph */
-            max-height: 500px; /* Set a maximum height */
-            max-width: 100%; /* Prevent overflow */
-            width: 100%; /* Adjust dynamically to the container */
-            border: 1px solid #ccc;
-            background-color: #e0e0e0; /* Optional background color */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional shadow for better visuals */
+            background-color: #ffffff;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-
         #steps-container {
-            flex: 1; /* Keep the steps container smaller */
-            max-height: 500px; /* Match the height with the graph */
-            overflow-y: auto; /* Enable scrolling if content exceeds height */
+            max-height: 500px;
+            width: 100%;
+            overflow-y: auto;
             border: 1px solid #ccc;
             padding: 10px;
             background-color: #f9f9f9;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional shadow for better visuals */
-            display: flex;
-            flex-direction: column;
-
-            
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
+        canvas#algorithm-canvas {
+            width: 100%;  /* Ensure it scales within its container */
+            height: auto;
+            max-height: 400px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            padding: 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content li {
+            list-style: none;
+            padding: 0;
+        }
+        .dropdown-content li a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: black;
+            background-color: white;
+        }
+        .dropdown-content li a:hover {
+            background-color: #ddd;
+        }
+        .project {
+            display: none;
+        }
+            
+        
     </style>
 </head>
 <body>
@@ -528,7 +570,14 @@
                     <ul>
                         <li><a href="#about">About</a></li>
                         <li><a href="#experience">Experience</a></li>
-                        <li><a href="#projects">Projects</a></li>
+                        <li class="dropdown">
+                            <a href="#projects" class="dropbtn">Projects</a>
+                            <ul class="dropdown-content">
+                                <li><a href="#algorithm-visualizer" class="project-link" data-target="algorithm-visualizer">Algorithm Visualizer</a></li>
+                                <li><a href="#pose-estimation" class="project-link" data-target="pose-estimation">Fitness Tracker</a></li>
+                                <li><a href="#stock-predictor" class="project-link" data-target="stock-predictor">Stock Predictor</a></li>
+                            </ul>
+                        </li>
                         <li><a href="#skills">Skills</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>
@@ -618,7 +667,7 @@
             
             <div id="projects" class="tab-content">
 
-            <div class="project">
+            <div id="stock-predictor" class="project">
                 <h3>Advanced Stock Predictor</h3>
                 <p>
                     A Python-based application utilizing LSTM models to predict stock prices with integrated technical indicators and Plotly for visualization.
@@ -632,6 +681,21 @@
                     View Code
                 </a>
             </div>
+
+
+            <div id = "pose-estimation" class = "project">
+                <h3>Pose Estimation Fitness Tracker</h3>
+                <p>May 2022 - July 2022</p>
+                <img src="images/pose_capture1.PNG" alt="Pose Estimation Fitness Tracker" style="width:100%; max-width:600px; border-radius:10px; margin-top:10px;">
+                <img src="images/pose_capture2.PNG" alt="Pose Estimation Fitness Tracker" style="width:100%; max-width:600px; border-radius:10px; margin-top:10px;">
+                <ul>
+                    <li>Designed and developed a real-time workout pose detection system using Python, OpenCV, and MediaPipe.</li>
+                    <li>Implemented a pose estimation model with MediaPipe's Pose Detection API, achieving a minimum detection confidence of 0.5.</li>
+                    <li>Added features for curl counting and angle calculation to monitor workout repetitions and form.</li>
+                    <li>Visualized body landmarks and workout data dynamically in a real-time video feed.</li>
+                </ul>
+            </div>
+
 
                 <!-- <h2>Projects</h2>
                 <div class="project">
@@ -650,7 +714,8 @@
                         <li>Implemented a Recycler View-based interface using MVC architecture.</li>
                     </ul>
                 </div> -->
-                <div class="project visualizer">
+                <div id="algorithm-visualizer" class="project">
+                    
                     <h3>Algorithm Visualizer</h3>
                     <p>Explore and visualize various algorithms in real-time, such as sorting, searching, and pathfinding.</p>
                     
@@ -672,12 +737,14 @@
 
                         <!-- Visualizer Canvas -->
                         <div id="visualizer-layout">
-                            <canvas id="algorithm-visualizer" width="800" height="400"></canvas>
+                            <canvas id="algorithm-canvas" width="800" height="400"></canvas>
                             <div id = "steps-container">
                                 <h4>Visited Nodes</h4>
                             </div>
                         </div>
                     </div>
+                    <canvas id="algorithm-canvas" width="850" height="450"></canvas>
+
                 </div>
             </div>
             
@@ -753,6 +820,147 @@
         const body = document.body;
         const bio = document.querySelector('.bio');
         
+            //Menu tab for projects
+            document.addEventListener("DOMContentLoaded", function() {
+                let projectLinks = document.querySelectorAll(".project-link");
+                let projects = document.querySelectorAll(".project");
+                let mainContent = document.querySelector("#main");
+                let projectsTab = document.getElementById("projects");
+                let algorithmVisualizer = document.getElementById("algorithm-visualizer");
+
+                function hideAllProjects() {
+                    projects.forEach(project => project.style.display = "none");
+                    if (mainContent) {
+                        mainContent.style.display = "none";
+                    }
+                }
+
+                // Ensure no screen is shown when Projects tab is clicked
+                projectsTab.addEventListener("click", function(event) {
+                    event.preventDefault();
+
+                    // Hide all project-related sections
+                    document.querySelectorAll(".project, .tab-content").forEach(element => {
+                        element.style.display = "none";
+                    });
+
+                    // Hide main content
+                    if (mainContent) {
+                        mainContent.style.display = "none";
+                    }
+
+                    // Hide Algorithm Visualizer if it exists
+                    if (algorithmVisualizer) {
+                        algorithmVisualizer.style.display = "none";
+                    }
+
+                    // Remove 'active' class from all tabs and only keep "Projects" active
+                    tabs.forEach(tab => tab.classList.remove("active"));
+                    projectsTab.classList.add("active");
+
+                    // OPTIONAL: Hide the entire content wrapper if it exists
+                    let contentWrapper = document.querySelector("#content-wrapper");
+                    if (contentWrapper) {
+                        contentWrapper.style.display = "none";
+                    }
+                });
+
+            projectLinks.forEach(link => {
+                link.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    hideAllProjects();
+
+                    if (projectsTab) {
+                        projectsTab.classList.add("active");
+                    }
+
+                    let targetProject = document.getElementById(this.dataset.target);
+                    if (targetProject) {
+                        targetProject.style.display = "block";
+
+                        // Ensure Algorithm Visualizer canvas resets correctly
+                        if (targetProject.id === "algorithm-visualizer") {
+                            setTimeout(() => {
+                                resizeCanvas();
+                                drawCanvasPlaceholder();
+                            }, 100);
+                        }
+                    }
+                });
+            });
+        });
+
+
+        function resizeCanvas() {
+            const canvas = document.getElementById("algorithm-canvas");
+
+            if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+                console.error("Canvas not found or not a valid canvas element.");
+                return;
+            }
+
+            canvas.width = canvas.parentElement.clientWidth - 20; // Adjust width dynamically
+            canvas.height = 400; // Maintain consistent height
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const algorithmSelect = document.getElementById("algorithm");
+            const runButton = document.getElementById("run-algorithm");
+
+            function runAlgorithm() {
+                console.log("Algorithm Run Button Clicked");
+
+                const selectedAlgorithm = algorithmSelect.value;
+                console.log("Selected Algorithm:", selectedAlgorithm);
+
+                switch (selectedAlgorithm) {
+                    case "insertion":
+                        visualizeInsertionSort();
+                        break;
+                    case "binary":
+                        visualizeBinarySearch();
+                        break;
+                    case "bfs":
+                        visualizeBreadthFirstSearch();
+                        break;
+                    case "merge":
+                        visualizeMergeSort();
+                        break;
+                    case "quick":
+                        visualizeQuickSort();
+                        break;
+                    case "greedy":
+                        visualizeGreedyAlgorithm();
+                        break;
+                    case "dfs":
+                        visualizeDepthFirstSearch();
+                        break;
+                    default:
+                        alert("Please select an algorithm.");
+                }
+            }
+
+            // ✅ Ensure only ONE event listener is attached
+            runButton.onclick = runAlgorithm;
+        });
+
+
+        function drawCanvasPlaceholder() {
+            const canvas = document.getElementById("algorithm-canvas");
+
+            if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+                console.error("Algorithm visualizer canvas not found!");
+                return;
+            }
+
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#aaa";
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Select an Algorithm and Click Run", canvas.width / 2, canvas.height / 2);
+        }
         // 다크 모드 토글 함수
         function toggleDarkMode() {
             body.classList.toggle('dark-mode');
@@ -828,40 +1036,40 @@
         //Algorithm Visualization Part
         const algorithmSelect = document.getElementById('algorithm');
         const runButton = document.getElementById('run-algorithm');
-        const canvas = document.getElementById('algorithm-visualizer');
+        const canvas = document.getElementById('algorithm-canvas');
         const stepsContainer = document.getElementById("steps-container");
         const ctx = canvas.getContext('2d');
 
-        runButton.addEventListener('click', () => {
-            const selectedAlgorithm = algorithmSelect.value;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // runButton.addEventListener('click', () => {
+        //     const selectedAlgorithm = algorithmSelect.value;
+        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            switch (selectedAlgorithm) {
-                case 'insertion':
-                    visualizeInsertionSort();
-                    break;
-                case 'binary':
-                    visualizeBinarySearch();
-                    break;
-                case 'bfs':
-                    visualizeBreadthFirstSearch();
-                    break;
-                case 'merge':
-                    visualizeMergeSort();
-                    break;
-                case 'quick':
-                    visualizeQuickSort();
-                    break;
-                case 'greedy':
-                    visualizeGreedyAlgorithm();
-                    break;
-                case 'dfs':
-                    visualizeDepthFirstSearch();
-                    break;
-                default:
-                    alert('Please select a valid algorithm.');
-            }
-        });
+        //     switch (selectedAlgorithm) {
+        //         case 'insertion':
+        //             visualizeInsertionSort();
+        //             break;
+        //         case 'binary':
+        //             visualizeBinarySearch();
+        //             break;
+        //         case 'bfs':
+        //             visualizeBreadthFirstSearch();
+        //             break;
+        //         case 'merge':
+        //             visualizeMergeSort();
+        //             break;
+        //         case 'quick':
+        //             visualizeQuickSort();
+        //             break;
+        //         case 'greedy':
+        //             visualizeGreedyAlgorithm();
+        //             break;
+        //         case 'dfs':
+        //             visualizeDepthFirstSearch();
+        //             break;
+        //         default:
+        //             alert('Please select a valid algorithm.');
+        //     }
+        // });
 
 
 
@@ -876,7 +1084,7 @@
 
             const barCount = parseInt(prompt('Enter the number of bars (e.g., 5, 10, 15):', '10')) || 10;
             const array = Array.from({ length: barCount }, () => Math.floor(Math.random() * 20) + 1);
-            const canvas = document.getElementById('algorithm-visualizer');
+            const canvas = document.getElementById('algorithm-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 800;
             canvas.height = 400;
@@ -977,6 +1185,7 @@
             console.log('Starting Binary Search visualization.');
 
             // Dynamic array length input
+            console.log("Prompting user for array length...");
             const arrayLength = parseInt(prompt('Enter the number of elements in the array (e.g., 5, 10, 15):', '10')) || 10;
 
             // Generate sorted random array
@@ -984,7 +1193,16 @@
                 .sort((a, b) => a - b);
 
             // Target element to search
+            console.log("Prompting user for target value...");
             const target = parseInt(prompt('Enter the target value to search for:', '50')) || 50;
+
+            console.log("Binary Search: User entered array length:", arrayLength);
+            console.log("Binary Search: User entered target value:", target);
+
+            console.log("Starting binary search on array:", array);
+
+            
+
 
             const barWidth = canvas.width / array.length; // Calculate bar width
             const delay = 500; // Delay for visualization steps
@@ -1078,7 +1296,7 @@
             const positions = {};
             const visited = [];
             const delay = 500;
-            const canvas = document.getElementById('algorithm-visualizer');
+            const canvas = document.getElementById('algorithm-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 800;
             canvas.height = 400;
@@ -1221,7 +1439,7 @@
 
             // Draw the array on the canvas
             function drawArray(highlightIndices = []) {
-                const canvas = document.getElementById('algorithm-visualizer');
+                const canvas = document.getElementById('algorithm-canvas');
                 const ctx = canvas.getContext('2d');
                 const barWidth = canvas.width / arraySize;
                 const maxBarHeight = canvas.height - 20;
@@ -1346,7 +1564,7 @@
 
             // Draw the array on the canvas
             function drawArray(highlightIndices = [], pivotIndex = -1) {
-                const canvas = document.getElementById('algorithm-visualizer');
+                const canvas = document.getElementById('algorithm-canvas');
                 const ctx = canvas.getContext('2d');
                 const barWidth = canvas.width / arraySize;
                 const maxBarHeight = canvas.height - 20;
@@ -1440,7 +1658,7 @@
             const selectedCoins = [];
 
             // Initialize canvas
-            const canvas = document.getElementById('algorithm-visualizer');
+            const canvas = document.getElementById('algorithm-canvas');
             if (!canvas) {
                 console.error('Canvas element not found!');
                 return;
@@ -1598,7 +1816,7 @@
             const delay = 500;
 
             // Initialize canvas
-            const canvas = document.getElementById('algorithm-visualizer');
+            const canvas = document.getElementById('algorithm-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 800;
             canvas.height = 400;
