@@ -1,202 +1,400 @@
-const tabs = document.querySelectorAll('nav ul li a');
-const tabContents = document.querySelectorAll('.tab-content');
-const darkModeToggle = document.querySelector('.dark-mode-toggle');
+const tabs = document.querySelectorAll("nav ul li a");
+const tabContents = document.querySelectorAll(".tab-content");
+const darkModeToggle = document.querySelector(".dark-mode-toggle");
 const body = document.body;
-const bio = document.querySelector('.bio');
-        
+const bio = document.querySelector(".bio");
+
+// Add this global variable near the top of the file, with other global variables
+let isAlgorithmRunning = false;
+let currentTimeouts = []; // Track all timeouts to be able to clear them
+
 //Menu tab for projects
-document.addEventListener("DOMContentLoaded", function() {
-    let projectLinks = document.querySelectorAll(".project-link");
-    let projects = document.querySelectorAll(".project");
-    let mainContent = document.querySelector("#main");
-    let projectsTab = document.getElementById("projects");
+document.addEventListener("DOMContentLoaded", function () {
+	let projectLinks = document.querySelectorAll(".project-link");
+	let projects = document.querySelectorAll(".project");
+	let mainContent = document.querySelector("#main");
+	let projectsTab = document.getElementById("projects");
+	let projectNavBtns = document.querySelectorAll(".project-nav-btn");
 
-    function hideAllProjects() {
-        projects.forEach(project => project.style.display = "none");
-        if (mainContent) {
-            mainContent.style.display = "none";
-        }
-    }
+	function hideAllProjects() {
+		projects.forEach((project) => {
+			project.style.display = "none";
+			project.classList.remove("active");
+		});
 
-    projectLinks.forEach(link => {
-        link.addEventListener("click", function(event) {
-            event.preventDefault();
-            hideAllProjects();
+		// Reset active state on nav buttons
+		projectNavBtns.forEach((btn) => btn.classList.remove("active"));
 
-            if (projectsTab) {
-                projectsTab.classList.add("active");
-            }
+		if (mainContent) {
+			mainContent.style.display = "none";
+		}
+	}
 
-            let targetProject = document.getElementById(this.dataset.target);
-            if (targetProject) {
-                targetProject.style.display = "block";
+	projectLinks.forEach((link) => {
+		link.addEventListener("click", function (event) {
+			event.preventDefault();
+			hideAllProjects();
 
-                // Ensure Algorithm Visualizer canvas resets correctly
-                if (targetProject.id === "algorithm-visualizer") {
-                    setTimeout(() => {
-                        resizeCanvas();
-                        drawCanvasPlaceholder();
-                    }, 100);
-                }
-            }
-        });
-    });
+			if (projectsTab) {
+				projectsTab.classList.add("active");
+			}
+
+			let targetId = this.dataset.target;
+			let targetProject = document.getElementById(targetId);
+
+			if (targetProject) {
+				targetProject.style.display = "block";
+				targetProject.classList.add("active");
+
+				// Scroll to the top of the selected project
+				targetProject.scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+				});
+
+				// If the project is inside a scrollable container, also scroll the container
+				if (projectsTab) {
+					projectsTab.scrollTop = 0;
+				}
+
+				// Also activate the corresponding nav button
+				const matchingBtn = document.querySelector(
+					`.project-nav-btn[data-target="${targetId}"]`
+				);
+				if (matchingBtn) {
+					matchingBtn.classList.add("active");
+				}
+
+				// Ensure Algorithm Visualizer canvas resets correctly
+				if (targetId === "algorithm-visualizer") {
+					setTimeout(() => {
+						resizeCanvas();
+						drawCanvasPlaceholder();
+					}, 100);
+				}
+			}
+		});
+	});
 });
 
-
 function resizeCanvas() {
-    const canvas = document.getElementById("algorithm-canvas");
+	const canvas = document.getElementById("algorithm-canvas");
 
-    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
-        console.error("Canvas not found or not a valid canvas element.");
-        return;
-    }
+	if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+		console.error("Canvas not found or not a valid canvas element.");
+		return;
+	}
 
-    canvas.width = canvas.parentElement.clientWidth - 20; // Adjust width dynamically
-    canvas.height = 400; // Maintain consistent height
+	// Get the parent container width and adjust canvas width
+	const parentWidth = canvas.parentElement.clientWidth;
+	canvas.width = parentWidth - 10; // Slightly smaller than parent to avoid overflow
+	canvas.height = 400; // Maintain consistent height
+
+	// If there's an active algorithm, redraw it
+	const algorithm = document.getElementById("algorithm").value;
+	if (algorithm && canvas.getContext) {
+		drawCanvasPlaceholder();
+	}
+}
+
+// Add window resize event listener to handle responsive canvas
+window.addEventListener("resize", function () {
+	// Debounce the resize event to avoid excessive redraws
+	clearTimeout(window.resizeTimeout);
+	window.resizeTimeout = setTimeout(function () {
+		resizeCanvas();
+	}, 250);
+});
+
+// Function to stop the current algorithm
+function stopCurrentAlgorithm() {
+	// Clear all pending timeouts
+	currentTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+	currentTimeouts = [];
+
+	// Reset the running flag
+	isAlgorithmRunning = false;
+
+	// Clear the canvas
+	const canvas = document.getElementById("algorithm-canvas");
+	if (canvas) {
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
+	console.log("Current algorithm stopped");
+}
+
+// Modified setTimeout wrapper to track timeouts
+function trackableSetTimeout(callback, delay) {
+	const timeoutId = setTimeout(() => {
+		// Remove this timeout from the tracking array when it executes
+		const index = currentTimeouts.indexOf(timeoutId);
+		if (index > -1) {
+			currentTimeouts.splice(index, 1);
+		}
+		callback();
+	}, delay);
+
+	// Add to tracking array
+	currentTimeouts.push(timeoutId);
+	return timeoutId;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    const algorithmSelect = document.getElementById("algorithm");
-    const runButton = document.getElementById("run-algorithm");
+	const algorithmSelect = document.getElementById("algorithm");
+	const runButton = document.getElementById("run-algorithm");
 
-    function runAlgorithm() {
-        console.log("Algorithm Run Button Clicked");
+	function runAlgorithm() {
+		console.log("Algorithm Run Button Clicked");
 
-        const selectedAlgorithm = algorithmSelect.value;
-        console.log("Selected Algorithm:", selectedAlgorithm);
+		// If an algorithm is already running, stop it
+		if (isAlgorithmRunning) {
+			stopCurrentAlgorithm();
+			// Add a small message to the steps container
+			addStep("Previous algorithm stopped", "current-step");
+		}
 
-        switch (selectedAlgorithm) {
-            case "insertion":
-                visualizeInsertionSort();
-                break;
-            case "binary":
-                visualizeBinarySearch();
-                break;
-            case "bfs":
-                visualizeBreadthFirstSearch();
-                break;
-            case "merge":
-                visualizeMergeSort();
-                break;
-            case "quick":
-                visualizeQuickSort();
-                break;
-            case "greedy":
-                visualizeGreedyAlgorithm();
-                break;
-            case "dfs":
-                visualizeDepthFirstSearch();
-                break;
-            default:
-                alert("Please select an algorithm.");
-        }
-    }
+		const selectedAlgorithm = algorithmSelect.value;
+		console.log("Selected Algorithm:", selectedAlgorithm);
 
-    // ✅ Ensure only ONE event listener is attached
-    runButton.onclick = runAlgorithm;
+		// Set the flag to indicate an algorithm is running
+		isAlgorithmRunning = true;
+
+		switch (selectedAlgorithm) {
+			case "insertion":
+				visualizeInsertionSort();
+				break;
+			case "binary":
+				visualizeBinarySearch();
+				break;
+			case "bfs":
+				visualizeBreadthFirstSearch();
+				break;
+			case "merge":
+				visualizeMergeSort();
+				break;
+			case "quick":
+				visualizeQuickSort();
+				break;
+			case "greedy":
+				visualizeGreedyAlgorithm();
+				break;
+			case "dfs":
+				visualizeDepthFirstSearch();
+				break;
+			default:
+				alert("Please select an algorithm.");
+				isAlgorithmRunning = false; // Reset flag if no algorithm is selected
+		}
+	}
+
+	// Ensure only ONE event listener is attached
+	runButton.onclick = runAlgorithm;
 });
 
-
 function drawCanvasPlaceholder() {
-    const canvas = document.getElementById("algorithm-canvas");
+	const canvas = document.getElementById("algorithm-canvas");
 
-    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
-        console.error("Algorithm visualizer canvas not found!");
-        return;
-    }
+	if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+		console.error("Algorithm visualizer canvas not found!");
+		return;
+	}
 
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	const ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "#aaa";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Select an Algorithm and Click Run", canvas.width / 2, canvas.height / 2);
+	ctx.fillStyle = "#aaa";
+	ctx.font = "20px Arial";
+	ctx.textAlign = "center";
+	ctx.fillText(
+		"Select an Algorithm and Click Run",
+		canvas.width / 2,
+		canvas.height / 2
+	);
 }
 // 다크 모드 토글 함수
 function toggleDarkMode() {
-    body.classList.toggle('dark-mode');
-    const isDarkMode = body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-    darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+	body.classList.toggle("dark-mode");
+	const isDarkMode = body.classList.contains("dark-mode");
+	localStorage.setItem("darkMode", isDarkMode);
+	darkModeToggle.textContent = isDarkMode ? "LIGHT" : "DARK";
 
-    const skills = document.querySelectorAll('.skill');
-    skills.forEach(skill => {
-        skill.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--skill-bg');
-        skill.style.color = getComputedStyle(document.documentElement).getPropertyValue('--skill-text');
-    });
+	// Change the logo image based on dark mode
+	const personalLogo = document.querySelector(".personal-logo");
+	if (personalLogo) {
+		personalLogo.src = isDarkMode
+			? "images/my-notion-face-transparent.png"
+			: "images/white_portrait.png";
+	}
+
+	// Apply dark mode to all elements that need specific styling
+	const skills = document.querySelectorAll(".skill");
+	skills.forEach((skill) => {
+		skill.style.backgroundColor = getComputedStyle(
+			document.documentElement
+		).getPropertyValue("--skill-bg");
+		skill.style.color = getComputedStyle(
+			document.documentElement
+		).getPropertyValue("--skill-text");
+	});
+
+	// Directly set CSS variables for immediate effect
+	if (isDarkMode) {
+		document.documentElement.style.setProperty("--bg-color", "#1a1a1a");
+		document.documentElement.style.setProperty("--text-color", "#f0f0f0");
+		document.documentElement.style.setProperty("--container-bg", "#2a2a2a");
+		document.documentElement.style.setProperty(
+			"--highlight-color",
+			"#7ec8e3"
+		);
+		document.documentElement.style.setProperty("--skill-bg", "#4a4a4a");
+		document.documentElement.style.setProperty("--skill-text", "#f0f0f0");
+		document.documentElement.style.setProperty("--contact-bg", "#2a2a2a");
+		document.documentElement.style.setProperty("--contact-text", "#f0f0f0");
+		document.documentElement.style.setProperty("--input-bg", "#3a3a3a");
+		document.documentElement.style.setProperty("--input-text", "#f0f0f0");
+		document.documentElement.style.setProperty("--button-bg", "#7ec8e3");
+		document.documentElement.style.setProperty("--button-text", "#1a1a1a");
+		document.documentElement.style.setProperty("--link-color", "#7ec8e3");
+	} else {
+		document.documentElement.style.setProperty("--bg-color", "#f0f0f0");
+		document.documentElement.style.setProperty("--text-color", "#333");
+		document.documentElement.style.setProperty("--container-bg", "#fff");
+		document.documentElement.style.setProperty(
+			"--highlight-color",
+			"#5eb5da"
+		);
+		document.documentElement.style.setProperty("--skill-bg", "#e0e0e0");
+		document.documentElement.style.setProperty("--skill-text", "#333");
+		document.documentElement.style.setProperty("--contact-bg", "#ffffff");
+		document.documentElement.style.setProperty("--contact-text", "#333333");
+		document.documentElement.style.setProperty("--input-bg", "#f0f0f0");
+		document.documentElement.style.setProperty("--input-text", "#333333");
+		document.documentElement.style.setProperty("--button-bg", "#5eb5da");
+		document.documentElement.style.setProperty("--button-text", "#ffffff");
+		document.documentElement.style.setProperty("--link-color", "#5eb5da");
+	}
+
+	// Redraw canvas if it exists and is visible
+	const canvas = document.getElementById("algorithm-canvas");
+	if (canvas && canvas.getContext) {
+		// Check if algorithm visualizer is active
+		const algorithmVisualizer = document.getElementById(
+			"algorithm-visualizer"
+		);
+		if (
+			algorithmVisualizer &&
+			algorithmVisualizer.classList.contains("active")
+		) {
+			const algorithm = document.getElementById("algorithm")?.value;
+			if (algorithm && isAlgorithmRunning) {
+				// If an algorithm is running, let it continue with updated colors
+			} else {
+				// Otherwise just redraw the placeholder
+				drawCanvasPlaceholder();
+			}
+		}
+	}
+
+	console.log("Dark mode toggled:", isDarkMode);
 }
-        
+
 // 저장된 다크 모드 설정 불러오기
-const savedDarkMode = localStorage.getItem('darkMode');
-if (savedDarkMode === 'true') {
-    body.classList.add('dark-mode');
-    darkModeToggle.textContent = 'LIGHT';
-}
-        
-// 다크 모드 버튼 이벤트 리스너
-darkModeToggle.addEventListener('click', toggleDarkMode);
-        
-// ... (기존 탭 관련 스크립트 유지) ...
-        
-function showContent(tabId) {
-    tabContents.forEach(content => content.classList.remove('active'));
-    const selectedContent = document.getElementById(tabId);
-    if (selectedContent) {
-        selectedContent.classList.add('active');
-    }
-    bio.style.display = tabId === 'main' ? 'block' : 'none';
-}
-        
-tabs.forEach(tab => {
-    tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        const tabId = tab.getAttribute('href').substring(1);
-                
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+const savedDarkMode = localStorage.getItem("darkMode");
+if (savedDarkMode === "true") {
+	body.classList.add("dark-mode");
+	darkModeToggle.textContent = "LIGHT";
 
-        if (tabId === 'about') {
-            const youngPhoto = document.getElementById('young-photo');
-            const currentPhoto = document.getElementById('current-photo');
-                    
-            youngPhoto.style.animation = 'none';
-            currentPhoto.style.animation = 'none';
-                    
-            setTimeout(() => {
-                youngPhoto.style.animation = '';
-                currentPhoto.style.animation = '';
-            }, 10);
-        }
-                
-        showContent(tabId);
-    });
-});
-        
-function showMainContent() {
-    showContent('main');
-    tabs.forEach(t => t.classList.remove('active'));
+	// Set the dark mode logo
+	const personalLogo = document.querySelector(".personal-logo");
+	if (personalLogo) {
+		personalLogo.src = "images/my-notion-face-transparent.png";
+	}
+
+	// Apply dark mode CSS variables directly for immediate effect
+	document.documentElement.style.setProperty("--bg-color", "#1a1a1a");
+	document.documentElement.style.setProperty("--text-color", "#f0f0f0");
+	document.documentElement.style.setProperty("--container-bg", "#2a2a2a");
+	document.documentElement.style.setProperty("--highlight-color", "#7ec8e3");
+	document.documentElement.style.setProperty("--skill-bg", "#4a4a4a");
+	document.documentElement.style.setProperty("--skill-text", "#f0f0f0");
+	document.documentElement.style.setProperty("--contact-bg", "#2a2a2a");
+	document.documentElement.style.setProperty("--contact-text", "#f0f0f0");
+	document.documentElement.style.setProperty("--input-bg", "#3a3a3a");
+	document.documentElement.style.setProperty("--input-text", "#f0f0f0");
+	document.documentElement.style.setProperty("--button-bg", "#7ec8e3");
+	document.documentElement.style.setProperty("--button-text", "#1a1a1a");
+	document.documentElement.style.setProperty("--link-color", "#7ec8e3");
+} else {
+	// Set the light mode logo
+	const personalLogo = document.querySelector(".personal-logo");
+	if (personalLogo) {
+		personalLogo.src = "images/white_portrait.png";
+	}
 }
-        
+
+// 다크 모드 버튼 이벤트 리스너
+darkModeToggle.addEventListener("click", toggleDarkMode);
+
+// ... (기존 탭 관련 스크립트 유지) ...
+
+function showContent(tabId) {
+	tabContents.forEach((content) => content.classList.remove("active"));
+	const selectedContent = document.getElementById(tabId);
+	if (selectedContent) {
+		selectedContent.classList.add("active");
+	}
+	bio.style.display = tabId === "main" ? "block" : "none";
+}
+
+tabs.forEach((tab) => {
+	tab.addEventListener("click", (e) => {
+		e.preventDefault();
+		const tabId = tab.getAttribute("href").substring(1);
+
+		tabs.forEach((t) => t.classList.remove("active"));
+		tab.classList.add("active");
+
+		if (tabId === "about") {
+			const youngPhoto = document.getElementById("young-photo");
+			const currentPhoto = document.getElementById("current-photo");
+
+			youngPhoto.style.animation = "none";
+			currentPhoto.style.animation = "none";
+
+			setTimeout(() => {
+				youngPhoto.style.animation = "";
+				currentPhoto.style.animation = "";
+			}, 10);
+		}
+
+		showContent(tabId);
+	});
+});
+
+function showMainContent() {
+	showContent("main");
+	tabs.forEach((t) => t.classList.remove("active"));
+}
+
 // 페이지 로드시 메인 컨텐츠 표시
 showMainContent();
-        
-// 이름/제목 클릭시 메인 페이지로 돌아가기
-document.querySelector('h1').addEventListener('click', showMainContent);
 
+// 이름/제목 클릭시 메인 페이지로 돌아가기
+document.querySelector("h1").addEventListener("click", showMainContent);
 
 //Algorithm Visualization Part
-const algorithmSelect = document.getElementById('algorithm');
-const runButton = document.getElementById('run-algorithm');
-const canvas = document.getElementById('algorithm-canvas');
+const algorithmSelect = document.getElementById("algorithm");
+const runButton = document.getElementById("run-algorithm");
+const canvas = document.getElementById("algorithm-canvas");
 const stepsContainer = document.getElementById("steps-container");
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext("2d");
 
 // runButton.addEventListener('click', () => {
 //     const selectedAlgorithm = algorithmSelect.value;
 //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
 //     switch (selectedAlgorithm) {
 //         case 'insertion':
 //             visualizeInsertionSort();
@@ -224,854 +422,1414 @@ const ctx = canvas.getContext('2d');
 //     }
 // });
 
-
-
-
-
-
-
 function visualizeInsertionSort() {
-    console.log('Starting Insertion Sort visualization.\n');
-    console.log('\n');
+	clearSteps();
 
+	// Prompt for number of elements
+	const numElements = parseInt(
+		prompt("Enter number of elements for Insertion Sort (5-20):", "15")
+	);
 
-    const barCount = parseInt(prompt('Enter the number of bars (e.g., 5, 10, 15):', '10')) || 10;
-    const array = Array.from({ length: barCount }, () => Math.floor(Math.random() * 20) + 1);
-    const canvas = document.getElementById('algorithm-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 400;
-    const barWidth = canvas.width / array.length;
-    const delay = 500;
+	// Check if user clicked Cancel
+	if (numElements === null || isNaN(numElements)) {
+		addStep("Visualization canceled", "current-step");
+		algorithmComplete(); // Reset flag if canceled
+		return;
+	}
 
-    // Create or reset the steps container
-    let stepsElement = document.getElementById('steps-container');
-    if (!stepsElement) {
-        stepsElement = document.createElement('div');
-        stepsElement.id = 'steps-container';
-        stepsElement.style.marginTop = '20px';
-        stepsElement.style.fontSize = '16px';
-        stepsElement.style.textAlign = 'center';
-        stepsElement.style.color = 'var(--text-color)';
-        document.getElementById('visualizer-container').appendChild(stepsElement);
-    } else {
-        console.log('Clearing previous steps.');
-        stepsElement.innerHTML = '';
-    }
+	// Validate input and use default if invalid
+	const validatedNumElements =
+		numElements && numElements >= 5 && numElements <= 20 ? numElements : 15;
 
-    // Function to append a step
-    function addStep(message) {
-        console.log('Step:', message);
-        const step = document.createElement('div');
-        step.textContent = message;
-        stepsElement.appendChild(step);
-    }
+	const array = generateRandomArray(validatedNumElements, 10, 100);
+	drawArray(array);
+	addStep(
+		`Starting Insertion Sort with ${validatedNumElements} elements: ${array.join(
+			", "
+		)}`
+	);
 
-    // Function to draw the array bars
-    function drawArray(arr, highlightIndex = -1) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+	let i = 1;
 
-        arr.forEach((value, index) => {
-            // Modern color theme
-            ctx.fillStyle = index === highlightIndex ? '#cbf3dc' : '#aed6f1'; // Highlight in green and bars in light blue
-            ctx.strokeStyle = '#ffffff'; // White border for bars
-            ctx.lineWidth = 2;
+	function insertionSortStep() {
+		if (i < array.length) {
+			const key = array[i];
+			let j = i - 1;
 
-            // Draw bar with rounded corners
-            const x = index * barWidth;
-            const barHeight = value * 15; // Adjust height scaling
-            const y = canvas.height - barHeight;
+			addStep(`Inserting ${key} into the sorted portion`);
 
-            ctx.beginPath();
-            ctx.moveTo(x, y); // Top left corner
-            ctx.lineTo(x, canvas.height); // Bottom left corner
-            ctx.lineTo(x + barWidth - 4, canvas.height); // Bottom right corner
-            ctx.lineTo(x + barWidth - 4, y); // Top right corner
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        });
-    }
+			function moveElement() {
+				if (j >= 0 && array[j] > key) {
+					array[j + 1] = array[j];
+					drawArray(array, j, j + 1);
+					addStep(`Moving ${array[j]} to position ${j + 1}`);
+					j--;
+					trackableSetTimeout(moveElement, 250);
+				} else {
+					array[j + 1] = key;
+					drawArray(array, j + 1);
+					addStep(`Placed ${key} at position ${j + 1}`, "current-step");
+					i++;
+					trackableSetTimeout(insertionSortStep, 250);
+				}
+			}
 
-    // Function to perform insertion sort with visualization
-    async function sortArray() {
-        addStep('Starting Insertion Sort...');
-        for (let i = 1; i < array.length; i++) {
-            let key = array[i];
-            let j = i - 1;
+			moveElement();
+		} else {
+			addStep("Insertion Sort Complete!", "path-node");
+			drawArray(array);
+			algorithmComplete(); // Reset flag when complete
+		}
+	}
 
-            addStep(`Picking element ${key} at index ${i}.`);
-            console.log(`Element picked: ${key} at index ${i}`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-
-            while (j >= 0 && array[j] > key) {
-                console.log(`Comparing ${array[j]} > ${key}. Shifting element.`);
-                array[j + 1] = array[j];
-                drawArray(array, j + 1);
-                addStep(`Comparing and shifting: ${array[j]} > ${key}`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                j = j - 1;
-            }
-
-            array[j + 1] = key;
-            drawArray(array, i);
-            addStep(`Placed ${key} at position ${j + 1}.`);
-            console.log(`Element ${key} placed at position ${j + 1}.`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-
-        drawArray(array);
-        addStep('Insertion Sort Completed!');
-        console.log('Insertion Sort Completed.');
-    }
-
-    drawArray(array); // Draw the initial array
-    sortArray(); // Start sorting
+	trackableSetTimeout(insertionSortStep, 250); // Faster animation (was 500)
 }
-
-
-
-
-
 
 function visualizeBinarySearch() {
-    console.log('Starting Binary Search visualization.');
+	clearSteps();
 
-    // Dynamic array length input
-    console.log("Prompting user for array length...");
-    const arrayLength = parseInt(prompt('Enter the number of elements in the array (e.g., 5, 10, 15):', '10')) || 10;
+	// Prompt for number of elements
+	const numElements = parseInt(
+		prompt("Enter number of elements for Binary Search (5-20):", "15")
+	);
 
-    // Generate sorted random array
-    const array = Array.from({ length: arrayLength }, () => Math.floor(Math.random() * 100))
-        .sort((a, b) => a - b);
+	// Check if user clicked Cancel
+	if (numElements === null || isNaN(numElements)) {
+		addStep("Visualization canceled", "current-step");
+		algorithmComplete(); // Reset flag if canceled
+		return;
+	}
 
-    // Target element to search
-    console.log("Prompting user for target value...");
-    const target = parseInt(prompt('Enter the target value to search for:', '50')) || 50;
+	// Validate input and use default if invalid
+	const validatedNumElements =
+		numElements && numElements >= 5 && numElements <= 20 ? numElements : 15;
 
-    console.log("Binary Search: User entered array length:", arrayLength);
-    console.log("Binary Search: User entered target value:", target);
+	const array = Array.from(
+		{ length: validatedNumElements },
+		(_, i) => i * 5 + 5
+	).sort((a, b) => a - b);
+	const target = array[Math.floor(Math.random() * array.length)];
 
-    console.log("Starting binary search on array:", array);
+	drawSortedArray(array);
+	addStep(
+		`Starting Binary Search for value ${target} in sorted array with ${validatedNumElements} elements`
+	);
+	addStep(`Array: ${array.join(", ")}`);
 
-            
+	let left = 0;
+	let right = array.length - 1;
 
+	function binarySearchStep() {
+		if (left <= right) {
+			const mid = Math.floor((left + right) / 2);
+			drawSortedArrayWithPointers(array, left, mid, right);
 
-    const barWidth = canvas.width / array.length; // Calculate bar width
-    const delay = 500; // Delay for visualization steps
+			addStep(
+				`Checking middle element at index ${mid}: ${array[mid]}`,
+				"visited-node"
+			);
 
-    // Create or reset the steps container
-    let stepsElement = document.getElementById('steps-container');
-    if (!stepsElement) {
-        stepsElement = document.createElement('div');
-        stepsElement.id = 'steps-container';
-        stepsElement.style.marginTop = '20px';
-        stepsElement.style.fontSize = '16px';
-        stepsElement.style.textAlign = 'center';
-        stepsElement.style.color = 'var(--text-color)';
-        document.getElementById('visualizer-container').appendChild(stepsElement);
-    } else {
-        console.log('Clearing previous steps.');
-        stepsElement.innerHTML = ''; // Clear previous steps
-    }
+			if (array[mid] === target) {
+				addStep(`Found ${target} at index ${mid}!`, "path-node");
+				drawSortedArrayWithTarget(array, mid);
+				return;
+			}
 
-    // Function to append a step
-    function addStep(message) {
-        console.log('Step:', message);
-        const step = document.createElement('div');
-        step.textContent = message;
-        stepsElement.appendChild(step);
-    }
+			if (array[mid] < target) {
+				addStep(`${array[mid]} < ${target}, searching right half`);
+				left = mid + 1;
+			} else {
+				addStep(`${array[mid]} > ${target}, searching left half`);
+				right = mid - 1;
+			}
 
-    // Function to draw the array
-    function drawArray(arr, low, high, mid) {
-        console.log('Drawing array:', arr, 'Low:', low, 'High:', high, 'Mid:', mid);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        arr.forEach((value, index) => {
-            ctx.fillStyle = index === mid ? '#cbf3dc' : (index >= low && index <= high ? '#aed6f1' : 'gray');
-            ctx.fillRect(index * barWidth, canvas.height - value * 5, barWidth - 2, value * 5);
-        });
-    }
+			trackableSetTimeout(binarySearchStep, 500); // Faster animation (was 1000)
+		} else {
+			addStep(`${target} not found in the array`, "current-step");
+			algorithmComplete(); // Reset flag when complete
+		}
+	}
 
-    // Perform binary search with visualization
-    async function binarySearch(arr, target) {
-        let low = 0;
-        let high = arr.length - 1;
-
-        while (low <= high) {
-            const mid = Math.floor((low + high) / 2);
-            drawArray(arr, low, high, mid);
-            addStep(`Checking middle index ${mid}, value: ${arr[mid]}`);
-
-            await new Promise(resolve => setTimeout(resolve, delay));
-
-            if (arr[mid] === target) {
-                addStep(`Target ${target} found at index ${mid}`);
-                console.log(`Target ${target} found at index ${mid}`);
-                return;
-            } else if (arr[mid] < target) {
-                addStep(`Target ${target} is greater than ${arr[mid]}, searching right half.`);
-                low = mid + 1;
-            } else {
-                addStep(`Target ${target} is less than ${arr[mid]}, searching left half.`);
-                high = mid - 1;
-            }
-        }
-
-        addStep(`Target ${target} not found in the array.`);
-        console.log(`Target ${target} not found.`);
-    }
-
-    drawArray(array, 0, array.length - 1, -1); // Draw initial array
-    binarySearch(array, target); // Start Binary Search
+	trackableSetTimeout(binarySearchStep, 500); // Faster animation (was 1000)
 }
-
-
-
-
-        
-
-
-
-
-
-
-
-    
 
 function visualizeBreadthFirstSearch() {
-    console.log('Starting Breadth-First Search visualization.');
+	clearSteps();
 
-    const nodeCount = parseInt(prompt('Enter the number of nodes (e.g., 5, 10):', '10')) || 10;
-    const arr = Array.from({ length: nodeCount }, (_, i) => i + 1);
+	// Use a default value instead of prompting
+	const validatedNumNodes = 7;
 
-    const tree = createBinaryTree(arr);
-    const positions = {};
-    const visited = [];
-    const delay = 500;
-    const canvas = document.getElementById('algorithm-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 400;
+	// Create a binary tree for BFS visualization with the specified number of nodes
+	const root = generateBalancedBinaryTree(validatedNumNodes);
 
-    const stepsContainer = document.getElementById('steps-container');
-    if (!stepsContainer) {
-        console.error('Steps container not found!');
-        return;
-    }
-    stepsContainer.innerHTML = '<h4>Visited Nodes</h4>'; // Initialize steps container
+	// Canvas dimensions
+	const width = canvas.width;
+	const height = canvas.height;
 
-    function calculatePositions(node, level, xOffset, width) {
-        if (!node) return;
-        positions[node.value] = { x: xOffset, y: level * 80 + 50 };
-        const gap = width / 2;
-        calculatePositions(node.left, level + 1, xOffset - gap, gap);
-        calculatePositions(node.right, level + 1, xOffset + gap, gap);
-    }
+	// Node positions
+	const nodePositions = {};
 
-    function drawTree(current) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Visited nodes array
+	const visited = [];
 
-        function drawEdges(node) {
-            if (!node) return;
-            const pos = positions[node.value];
-            if (node.left) {
-                const leftPos = positions[node.left.value];
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-                ctx.lineTo(leftPos.x, leftPos.y);
-                ctx.stroke();
-            }
-            if (node.right) {
-                const rightPos = positions[node.right.value];
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-                ctx.lineTo(rightPos.x, rightPos.y);
-                ctx.stroke();
-            }
-            drawEdges(node.left);
-            drawEdges(node.right);
-        }
-        drawEdges(tree);
+	// Calculate positions for each node
+	calculatePositions(root, 0, 0, width);
 
-        function drawNodes(node) {
-            if (!node) return;
-            const { x, y } = positions[node.value];
-            ctx.fillStyle = visited.includes(node.value) ? '#aed6f1' : '#e0e0e0';
-            ctx.beginPath();
-            ctx.arc(x, y, 20, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#666';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.value, x, y);
-            drawNodes(node.left);
-            drawNodes(node.right);
-        }
-        drawNodes(tree);
+	// Draw the initial tree
+	drawTree(root, visited);
 
-        if (current !== undefined) {
-            const { x, y } = positions[current];
-            ctx.strokeStyle = '#6bdd9c ';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(x, y, 24, 0, 2 * Math.PI);
-            ctx.stroke();
-        }
-    }
+	// Add initial step
+	addStep(
+		`Starting Breadth-First Search on binary tree with ${validatedNumNodes} nodes`,
+		"current-step"
+	);
 
-    async function bfs(root) {
-        const queue = [root];
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (!visited.includes(current.value)) {
-                visited.push(current.value);
-                stepsContainer.innerHTML += `<p>Visited Node: ${current.value}</p>`; // Add node to the steps container
-                drawTree(current.value);
-                await new Promise((resolve) => setTimeout(resolve, delay));
-            }
-            if (current.left) queue.push(current.left);
-            if (current.right) queue.push(current.right);
-        }
-    }
+	// Start BFS after a delay
+	trackableSetTimeout(() => bfs(root), 500); // Faster animation (was 1000)
 
-    calculatePositions(tree, 0, canvas.width / 2, canvas.width / 4);
-    drawTree();
-    bfs(tree);
+	// Function to calculate node positions
+	function calculatePositions(node, level, xOffset, width) {
+		if (!node) return;
+
+		const y = 60 + level * 80;
+		const x = xOffset + width / 2;
+
+		nodePositions[node.value] = { x, y };
+
+		const nextWidth = width / 2;
+		calculatePositions(node.left, level + 1, xOffset, nextWidth);
+		calculatePositions(node.right, level + 1, xOffset + nextWidth, nextWidth);
+	}
+
+	// Function to draw the tree
+	function drawTree(current, visitedNodes) {
+		ctx.clearRect(0, 0, width, height);
+
+		// Draw edges first
+		function drawEdges(node) {
+			if (!node) return;
+
+			if (node.left) {
+				const startPos = nodePositions[node.value];
+				const endPos = nodePositions[node.left.value];
+
+				ctx.beginPath();
+				ctx.moveTo(startPos.x, startPos.y);
+				ctx.lineTo(endPos.x, endPos.y);
+				ctx.strokeStyle = "rgba(94, 181, 218, 1.0)";
+				ctx.lineWidth = 2;
+				ctx.stroke();
+			}
+
+			if (node.right) {
+				const startPos = nodePositions[node.value];
+				const endPos = nodePositions[node.right.value];
+
+				ctx.beginPath();
+				ctx.moveTo(startPos.x, startPos.y);
+				ctx.lineTo(endPos.x, endPos.y);
+				ctx.strokeStyle = "rgba(94, 181, 218, 1.0)";
+				ctx.lineWidth = 2;
+				ctx.stroke();
+			}
+
+			drawEdges(node.left);
+			drawEdges(node.right);
+		}
+
+		// Draw nodes
+		function drawNodes(node) {
+			if (!node) return;
+
+			const pos = nodePositions[node.value];
+
+			// Draw node circle
+			ctx.beginPath();
+			ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+
+			if (current && node.value === current.value) {
+				ctx.fillStyle = "#79dc7c"; // Current node - bright blue
+			} else if (visitedNodes.includes(node.value)) {
+				ctx.fillStyle = "#8ce88f"; // Visited node - bright green
+			} else {
+				ctx.fillStyle = "#7fa9d9"; // Default node - lighter blue
+			}
+
+			ctx.fill();
+			ctx.strokeStyle = "#2a6f97"; // Darker blue for border
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			// Draw node value with white text for better contrast
+			if (
+				(current && node.value === current.value) ||
+				visitedNodes.includes(node.value)
+			) {
+				ctx.fillStyle = "#ffffff"; // White text on colored backgrounds
+			} else {
+				ctx.fillStyle = "#333333"; // Dark text on light backgrounds
+			}
+			ctx.font = "bold 14px Inter";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(node.value, pos.x, pos.y);
+
+			drawNodes(node.left);
+			drawNodes(node.right);
+		}
+
+		drawEdges(root);
+		drawNodes(root);
+	}
+
+	// BFS implementation
+	async function bfs(root) {
+		if (!root) {
+			addStep("Tree is empty", "current-step");
+			algorithmComplete(); // Reset flag if tree is empty
+			return;
+		}
+
+		const queue = [root];
+
+		while (queue.length > 0) {
+			const current = queue.shift();
+
+			// Skip if already visited
+			if (visited.includes(current.value)) continue;
+
+			// Mark as visited
+			visited.push(current.value);
+
+			// Update visualization
+			drawTree(current, visited);
+			addStep(`Visiting node ${current.value}`, "visited-node");
+
+			// Add left child to queue
+			if (current.left) {
+				queue.push(current.left);
+				addStep(`Adding left child ${current.left.value} to queue`);
+			}
+
+			// Add right child to queue
+			if (current.right) {
+				queue.push(current.right);
+				addStep(`Adding right child ${current.right.value} to queue`);
+			}
+
+			// Wait before processing next node
+			await new Promise((resolve) => trackableSetTimeout(resolve, 500)); // Faster animation (was 1000)
+		}
+
+		// Draw final state
+		drawTree(null, visited);
+		addStep("Breadth-First Search complete!", "path-node");
+		algorithmComplete(); // Reset flag when complete
+	}
 }
 
-
-
-
-
-
-
-        
 function visualizeMergeSort() {
-    console.log('Starting Merge Sort visualization.');
+	clearSteps();
 
-    // Prompt the user for the array size
-    const arraySize = parseInt(prompt('Enter the size of the array to sort (e.g., 5, 10):', '10')) || 10;
+	// Prompt for number of elements
+	const numElements = parseInt(
+		prompt("Enter number of elements for Merge Sort (5-15):", "12")
+	);
 
-    // Generate a random array of integers
-    const array = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100));
-    console.log('Array to sort:', array);
+	// Check if user clicked Cancel
+	if (numElements === null || isNaN(numElements)) {
+		addStep("Visualization canceled", "current-step");
+		algorithmComplete(); // Reset flag if canceled
+		return;
+	}
 
-    const delay = 500;
+	// Validate input and use default if invalid
+	const validatedNumElements =
+		numElements && numElements >= 5 && numElements <= 15 ? numElements : 12;
 
-    // Create or reset the steps container below the canvas
-    let stepsElement = document.getElementById('steps-container');
-    if (!stepsElement) {
-        stepsElement = document.createElement('div');
-        stepsElement.id = 'steps-container';
-        stepsElement.style.marginTop = '20px';
-        stepsElement.style.fontSize = '16px';
-        stepsElement.style.textAlign = 'center';
-        stepsElement.style.color = 'var(--text-color)';
-        document.getElementById('visualizer-container').appendChild(stepsElement);
-    } else {
-        console.log('Clearing previous steps.');
-        stepsElement.innerHTML = ''; // Clear previous steps
-    }
+	// Generate random array
+	const array = generateRandomArray(validatedNumElements, 10, 100);
 
-    // Add a step to the steps container
-    function addStep(message) {
-        console.log('Step:', message);
-        const step = document.createElement('div');
-        step.textContent = message;
-        stepsElement.appendChild(step);
-    }
+	// Draw initial array
+	drawArray(array);
 
-    // Draw the array on the canvas
-    function drawArray(highlightIndices = []) {
-        const canvas = document.getElementById('algorithm-canvas');
-        const ctx = canvas.getContext('2d');
-        const barWidth = canvas.width / arraySize;
-        const maxBarHeight = canvas.height - 20;
+	// Add initial step
+	addStep(
+		`Starting Merge Sort with ${validatedNumElements} elements: ${array.join(
+			", "
+		)}`
+	);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Start merge sort
+	mergeSort(array, 0, array.length - 1);
 
-        array.forEach((value, index) => {
-            const barHeight = (value / 100) * maxBarHeight;
-            ctx.fillStyle = highlightIndices.includes(index) ? '#cbf3dc' : '#aed6f1'; // Highlight the current indices
-            ctx.fillRect(index * barWidth, canvas.height - barHeight, barWidth - 2, barHeight); // Draw the bar
-        });
-    }
+	// Merge sort implementation
+	async function mergeSort(arr, left, right) {
+		if (left >= right) return;
 
-    // Perform Merge Sort
-    async function mergeSort(left, right) {
-        if (left >= right) return;
+		const mid = Math.floor((left + right) / 2);
 
-        const mid = Math.floor((left + right) / 2);
+		// Add step for division
+		addStep(
+			`Dividing array at index ${mid}: [${arr
+				.slice(left, mid + 1)
+				.join(", ")}] and [${arr.slice(mid + 1, right + 1).join(", ")}]`
+		);
 
-        // Divide the array
-        await mergeSort(left, mid);
-        await mergeSort(mid + 1, right);
+		// Recursively sort left and right halves
+		await mergeSort(arr, left, mid);
+		await mergeSort(arr, mid + 1, right);
 
-        // Merge the sorted halves
-        await merge(left, mid, right);
-    }
+		// Merge the sorted halves
+		await merge(arr, left, mid, right);
+	}
 
-    // Merge two sorted subarrays
-    async function merge(left, mid, right) {
-        const leftArray = array.slice(left, mid + 1);
-        const rightArray = array.slice(mid + 1, right + 1);
+	// Merge function
+	async function merge(arr, left, mid, right) {
+		addStep(
+			`Merging subarrays: [${arr.slice(left, mid + 1).join(", ")}] and [${arr
+				.slice(mid + 1, right + 1)
+				.join(", ")}]`,
+			"visited-node"
+		);
 
-        let i = 0, j = 0, k = left;
+		// Create temporary arrays
+		const leftArray = arr.slice(left, mid + 1);
+		const rightArray = arr.slice(mid + 1, right + 1);
 
-        while (i < leftArray.length && j < rightArray.length) {
-            if (leftArray[i] <= rightArray[j]) {
-                array[k] = leftArray[i];
-                i++;
-            } else {
-                array[k] = rightArray[j];
-                j++;
-            }
-            addStep(`Merged ${array[k]} into position ${k}`);
-            drawArray([k]); // Highlight the current bar being updated
-            k++;
-            await new Promise((resolve) => setTimeout(resolve, delay));
-        }
+		let i = 0,
+			j = 0,
+			k = left;
 
-        while (i < leftArray.length) {
-            array[k] = leftArray[i];
-            addStep(`Copied ${array[k]} from left subarray to position ${k}`);
-            drawArray([k]);
-            i++;
-            k++;
-            await new Promise((resolve) => setTimeout(resolve, delay));
-        }
+		// Merge the arrays back into arr[left...right]
+		while (i < leftArray.length && j < rightArray.length) {
+			if (leftArray[i] <= rightArray[j]) {
+				arr[k] = leftArray[i];
+				addStep(`Placing ${leftArray[i]} from left array at position ${k}`);
+				i++;
+			} else {
+				arr[k] = rightArray[j];
+				addStep(
+					`Placing ${rightArray[j]} from right array at position ${k}`
+				);
+				j++;
+			}
 
-        while (j < rightArray.length) {
-            array[k] = rightArray[j];
-            addStep(`Copied ${array[k]} from right subarray to position ${k}`);
-            drawArray([k]);
-            j++;
-            k++;
-            await new Promise((resolve) => setTimeout(resolve, delay));
-        }
-    }
+			// Update visualization
+			drawArray(arr, k);
 
-    // Initialize the visualization
-    async function startVisualization() {
-        console.log('Starting Merge Sort...');
-        drawArray(); // Initial array
-        addStep(`Initial Array: ${array.join(', ')}`);
-        await mergeSort(0, array.length - 1);
-        addStep(`Sorted Array: ${array.join(', ')}`);
-        drawArray(); // Final sorted array
-    }
+			// Wait for animation
+			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
+			k++;
+		}
 
-    startVisualization();
+		// Copy remaining elements from left array
+		while (i < leftArray.length) {
+			arr[k] = leftArray[i];
+			addStep(
+				`Copying remaining ${leftArray[i]} from left array to position ${k}`
+			);
+			drawArray(arr, k);
+			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
+			i++;
+			k++;
+		}
+
+		// Copy remaining elements from right array
+		while (j < rightArray.length) {
+			arr[k] = rightArray[j];
+			addStep(
+				`Copying remaining ${rightArray[j]} from right array to position ${k}`
+			);
+			drawArray(arr, k);
+			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
+			j++;
+			k++;
+		}
+
+		// Show the merged subarray
+		addStep(
+			`Merged subarray: [${arr.slice(left, right + 1).join(", ")}]`,
+			"current-step"
+		);
+
+		// If we've sorted the entire array, mark as complete
+		if (left === 0 && right === arr.length - 1) {
+			addStep("Merge Sort Complete!", "path-node");
+			drawArray(arr);
+			algorithmComplete(); // Reset flag when complete
+		}
+	}
 }
-
-
-
-
-
-
-
 
 function visualizeQuickSort() {
-    console.log('Starting Quick Sort visualization.');
+	clearSteps();
 
-    // Prompt the user for the array size
-    const arraySize = parseInt(prompt('Enter the size of the array to sort (e.g., 5, 10):', '10')) || 10;
+	// Prompt for number of elements
+	const numElements = parseInt(
+		prompt("Enter number of elements for Quick Sort (5-15):", "12")
+	);
 
-    // Generate a random array of integers
-    const array = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 100));
-    console.log('Array to sort:', array);
+	// Check if user clicked Cancel
+	if (numElements === null || isNaN(numElements)) {
+		addStep("Visualization canceled", "current-step");
+		algorithmComplete(); // Reset flag if canceled
+		return;
+	}
 
-    const delay = 500;
+	// Validate input and use default if invalid
+	const validatedNumElements =
+		numElements && numElements >= 5 && numElements <= 15 ? numElements : 12;
 
-    // Create or reset the steps container below the canvas
-    let stepsElement = document.getElementById('steps-container');
-    if (!stepsElement) {
-        stepsElement = document.createElement('div');
-        stepsElement.id = 'steps-container';
-        stepsElement.style.marginTop = '20px';
-        stepsElement.style.fontSize = '16px';
-        stepsElement.style.textAlign = 'center';
-        stepsElement.style.color = 'var(--text-color)';
-        document.getElementById('visualizer-container').appendChild(stepsElement);
-    } else {
-        console.log('Clearing previous steps.');
-        stepsElement.innerHTML = ''; // Clear previous steps
-    }
+	// Generate random array
+	const array = generateRandomArray(validatedNumElements, 10, 100);
 
-    // Add a step to the steps container
-    function addStep(message) {
-        console.log('Step:', message);
-        const step = document.createElement('div');
-        step.textContent = message;
-        stepsElement.appendChild(step);
-    }
+	// Draw initial array
+	drawArray(array);
 
-    // Draw the array on the canvas
-    function drawArray(highlightIndices = [], pivotIndex = -1) {
-        const canvas = document.getElementById('algorithm-canvas');
-        const ctx = canvas.getContext('2d');
-        const barWidth = canvas.width / arraySize;
-        const maxBarHeight = canvas.height - 20;
+	// Add initial step
+	addStep(
+		`Starting Quick Sort with ${validatedNumElements} elements: ${array.join(
+			", "
+		)}`
+	);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Start quick sort
+	quickSort(array, 0, array.length - 1);
 
-        array.forEach((value, index) => {
-            const barHeight = (value / 100) * maxBarHeight;
+	// Quick sort implementation
+	async function quickSort(arr, left, right) {
+		if (left >= right) return;
 
-            // Highlight the pivot element
-            if (index === pivotIndex) {
-                ctx.fillStyle = '#cbf3dc '; // Pivot in red
-            } else if (highlightIndices.includes(index)) {
-                ctx.fillStyle = '#aed6f1 '; // Current elements being compared
-            } else {
-                ctx.fillStyle = '#d3d3d3'; // Default bar color
-            }
+		// Partition the array and get pivot index
+		const pivotIndex = await partition(arr, left, right);
 
-            ctx.fillRect(index * barWidth, canvas.height - barHeight, barWidth - 2, barHeight);
-        });
-    }
+		// Recursively sort the sub-arrays
+		await quickSort(arr, left, pivotIndex - 1);
+		await quickSort(arr, pivotIndex + 1, right);
 
-    // Perform Quick Sort
-    async function quickSort(left, right) {
-        if (left >= right) return;
+		// If we've sorted the entire array, mark as complete
+		if (left === 0 && right === arr.length - 1) {
+			addStep("Quick Sort Complete!", "path-node");
+			drawArray(arr);
+			algorithmComplete(); // Reset flag when complete
+		}
+	}
 
-        // Partition the array
-        const pivotIndex = await partition(left, right);
+	// Partition function
+	async function partition(arr, left, right) {
+		// Choose rightmost element as pivot
+		const pivot = arr[right];
+		addStep(`Selected pivot: ${pivot} at index ${right}`, "current-step");
 
-        // Recursively sort the left and right partitions
-        await quickSort(left, pivotIndex - 1);
-        await quickSort(pivotIndex + 1, right);
-    }
+		// Draw array with pivot highlighted
+		drawArray(arr, right);
+		await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
 
-    // Partition the array
-    async function partition(left, right) {
-        const pivot = array[right]; // Last element as pivot
-        let i = left - 1;
+		// Index of smaller element
+		let i = left - 1;
 
-        addStep(`Pivot selected: ${pivot} at index ${right}`);
-        drawArray([], right); // Highlight the pivot element
-        await new Promise((resolve) => setTimeout(resolve, delay));
+		// Process each element except the pivot
+		for (let j = left; j < right; j++) {
+			// If current element is smaller than the pivot
+			if (arr[j] < pivot) {
+				// Increment index of smaller element
+				i++;
 
-        for (let j = left; j < right; j++) {
-            if (array[j] < pivot) {
-                i++;
-                [array[i], array[j]] = [array[j], array[i]]; // Swap smaller elements with i
-                addStep(`Swapped ${array[i]} and ${array[j]}`);
-                drawArray([i, j], right); // Highlight elements being swapped
-                await new Promise((resolve) => setTimeout(resolve, delay));
-            }
-        }
+				// Swap elements
+				if (i !== j) {
+					addStep(
+						`Swapping ${arr[i]} and ${arr[j]} (smaller than pivot ${pivot})`,
+						"visited-node"
+					);
+					[arr[i], arr[j]] = [arr[j], arr[i]];
+					drawArray(arr, right, i, j);
+					await new Promise((resolve) =>
+						trackableSetTimeout(resolve, 250)
+					); // Faster animation (was 500)
+				}
+			} else {
+				addStep(`${arr[j]} >= pivot ${pivot}, no swap needed`);
+				drawArray(arr, right, j);
+				await new Promise((resolve) => trackableSetTimeout(resolve, 150)); // Faster animation (was 300)
+			}
+		}
 
-        // Place the pivot element in its correct position
-        [array[i + 1], array[right]] = [array[right], array[i + 1]];
-        addStep(`Placed pivot ${array[i + 1]} at index ${i + 1}`);
-        drawArray([i + 1], i + 1); // Highlight the pivot's final position
-        await new Promise((resolve) => setTimeout(resolve, delay));
+		// Swap the pivot element with the element at (i+1)
+		if (i + 1 !== right) {
+			addStep(
+				`Placing pivot ${pivot} at its correct position (index ${i + 1})`,
+				"current-step"
+			);
+			[arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+			drawArray(arr, i + 1);
+			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
+		}
 
-        return i + 1; // Return the pivot index
-    }
-
-    // Initialize the visualization
-    async function startVisualization() {
-        console.log('Starting Quick Sort...');
-        drawArray(); // Initial array
-        addStep(`Initial Array: ${array.join(', ')}`);
-        await quickSort(0, array.length - 1);
-        addStep(`Sorted Array: ${array.join(', ')}`);
-        drawArray(); // Final sorted array
-    }
-
-    startVisualization();
+		// Return the position of the pivot
+		return i + 1;
+	}
 }
-
-
-
-
 
 function visualizeGreedyAlgorithm() {
-    console.log('Starting Greedy Coin Change visualization.');
+	clearSteps();
 
-    // Prompt the user for the target amount
-    const targetAmount = parseFloat(prompt('Enter the target amount (e.g., 47.65):', '47.65')) || 47.65;
-    const coinDenominations = [100, 50, 25, 10, 5, 1, 0.50, 0.25, 0.10, 0.05, 0.01]; // Expanded coin denominations
-    console.log('Target amount:', targetAmount);
-    console.log('Coin denominations:', coinDenominations);
+	// Prompt for target amount
+	const inputAmount = parseFloat(
+		prompt("Enter target amount for Coin Change (1-100):", "47.65")
+	);
 
-    const delay = 500; // Delay for visualization
-    let remainingAmount = targetAmount.toFixed(2); // Ensure precision for decimals
-    const selectedCoins = [];
+	// Check if user clicked Cancel
+	if (inputAmount === null || isNaN(inputAmount)) {
+		addStep("Visualization canceled", "current-step");
+		algorithmComplete(); // Reset flag if canceled
+		return;
+	}
 
-    // Initialize canvas
-    const canvas = document.getElementById('algorithm-canvas');
-    if (!canvas) {
-        console.error('Canvas element not found!');
-        return;
-    }
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 200;
+	// Validate input and use default if invalid
+	const targetAmount =
+		inputAmount && inputAmount > 0 && inputAmount <= 100
+			? parseFloat(inputAmount.toFixed(2))
+			: 47.65;
 
-    // Clear previous steps and canvas
-    const stepsElement = document.getElementById('steps-container');
-    if (!stepsElement) {
-        console.error('Steps container not found!');
-        return;
-    }
-    stepsElement.innerHTML = ''; // Clear steps container
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+	// Set up coin change problem
+	const coins = [25, 10, 5, 1, 0.25, 0.1, 0.05, 0.01];
+	const coinNames = {
+		25: "Quarter ($0.25)",
+		10: "Dime ($0.10)",
+		5: "Nickel ($0.05)",
+		1: "Penny ($0.01)",
+		0.25: "Quarter ($0.25)",
+		0.1: "Dime ($0.10)",
+		0.05: "Nickel ($0.05)",
+		0.01: "Penny ($0.01)",
+	};
 
-    // Helper function to add a step message
-    function addStep(message) {
-        console.log('Step:', message);
-        const step = document.createElement('div');
-        step.textContent = message;
-        stepsElement.appendChild(step);
-    }
+	let remainingAmount = targetAmount;
+	const selectedCoins = [];
 
-    // Helper function to draw coins and remaining amount
-    function drawVisualization() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+	// Add initial step
+	addStep(
+		`Starting Greedy Coin Change for amount: $${targetAmount.toFixed(2)}`,
+		"current-step"
+	);
+	addStep(
+		`Available coins: ${coins.map((c) => `$${c.toFixed(2)}`).join(", ")}`
+	);
 
-        const coinRadius = 25; // Size of each coin
-        const coinSpacing = 60; // Spacing between coins
-        const startX = 50; // Starting X position for coins
-        const startY = canvas.height / 2; // Y position for coins
+	// Draw initial state
+	drawCoinChangeState(coins, selectedCoins, remainingAmount);
 
-        // Draw each coin denomination
-        coinDenominations.forEach((denomination, index) => {
-            const x = startX + index * coinSpacing;
+	// Start greedy algorithm
+	trackableSetTimeout(() => greedyCoinChange(coins, targetAmount), 500); // Faster animation (was 1000)
 
-            // Draw coin circle
-            ctx.beginPath();
-            ctx.arc(x, startY, coinRadius, 0, 2 * Math.PI);
-            ctx.fillStyle = selectedCoins.includes(denomination)
-                ? '#aed6f1 ' // Blue for selected coins
-                : '#d3d3d3'; // Gray for unselected coins
-            ctx.fill();
-            ctx.strokeStyle = 'black';
-            ctx.stroke();
+	// Greedy coin change algorithm
+	async function greedyCoinChange(coins, amount) {
+		let remaining = amount;
+		const result = [];
 
-            // Draw coin text
-            ctx.fillStyle = 'black';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(denomination.toFixed(2), x, startY);
-        });
+		// Sort coins in descending order
+		const sortedCoins = [...coins].sort((a, b) => b - a);
 
-        // Draw remaining amount
-        ctx.fillStyle = 'black';
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`Remaining Amount: ${remainingAmount}`, 50, 40);
-    }
+		for (const coin of sortedCoins) {
+			// Use as many of this coin as possible
+			while (remaining >= coin) {
+				result.push(coin);
+				remaining = parseFloat((remaining - coin).toFixed(2)); // Fix floating point precision
 
-    // Greedy algorithm for coin change
-    async function greedyCoinChange() {
-        addStep(`Target amount: ${targetAmount}`);
-        drawVisualization();
-        await new Promise((resolve) => setTimeout(resolve, delay));
+				// Update visualization
+				selectedCoins.push(coin);
+				remainingAmount = remaining;
 
-        for (const coin of coinDenominations) {
-            while (remainingAmount >= coin) {
-                selectedCoins.push(coin);
-                remainingAmount = (remainingAmount - coin).toFixed(2); // Ensure precision
-                addStep(`Selected coin: ${coin.toFixed(2)}, Remaining amount: ${remainingAmount}`);
-                drawVisualization(); // Update visualization
-                await new Promise((resolve) => setTimeout(resolve, delay));
-            }
-        }
+				addStep(
+					`Selected ${coinNames[coin]} (${coin.toFixed(
+						2
+					)}), remaining: $${remaining.toFixed(2)}`,
+					"visited-node"
+				);
+				drawCoinChangeState(sortedCoins, selectedCoins, remaining);
 
-        addStep(`Change complete: ${selectedCoins.map((c) => c.toFixed(2)).join(', ')}`);
-        drawVisualization(); // Final visualization
-    }
+				await new Promise((resolve) => trackableSetTimeout(resolve, 400)); // Faster animation (was 800)
+			}
+		}
 
-    drawVisualization(); // Initial visualization
-    greedyCoinChange(); // Start the greedy algorithm
+		// Show final result
+		addStep(
+			`Coin change complete! Used ${result.length} coins: ${result
+				.map((c) => `$${c.toFixed(2)}`)
+				.join(", ")}`,
+			"path-node"
+		);
+		drawCoinChangeState(sortedCoins, selectedCoins, 0);
+		algorithmComplete(); // Reset flag when complete
+	}
 }
 
+function drawCoinChangeState(availableCoins, selectedCoins, remainingAmount) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+	// Draw remaining amount
+	ctx.font = "bold 18px Inter";
+	ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(
+		"--text-color"
+	);
+	ctx.textAlign = "center";
+	ctx.fillText(
+		`Remaining: $${remainingAmount.toFixed(2)}`,
+		canvas.width / 2,
+		30
+	);
 
+	// Count selected coins
+	const coinCounts = {};
+	for (const coin of selectedCoins) {
+		coinCounts[coin] = (coinCounts[coin] || 0) + 1;
+	}
 
+	// Draw available coins
+	const coinRadius = 30;
+	const startY = 80;
 
+	// Calculate how many coins to display per row based on canvas width
+	const coinsPerRow = Math.min(4, Math.floor(canvas.width / 120));
+	const horizontalSpacing = canvas.width / (coinsPerRow + 1);
+	const verticalSpacing = 100;
 
+	availableCoins.forEach((coin, index) => {
+		const row = Math.floor(index / coinsPerRow);
+		const col = index % coinsPerRow;
 
+		// Center the coins horizontally
+		const x = horizontalSpacing * (col + 1);
+		const y = startY + row * verticalSpacing;
+
+		// Draw coin
+		ctx.beginPath();
+		ctx.arc(x, y, coinRadius, 0, Math.PI * 2);
+
+		// Color based on selection
+		const count = coinCounts[coin] || 0;
+		if (count > 0) {
+			ctx.fillStyle = "rgba(94, 181, 218, 0.8)";
+		} else {
+			ctx.fillStyle = "rgba(94, 181, 218, 0.2)";
+		}
+
+		ctx.fill();
+		ctx.strokeStyle = "rgba(94, 181, 218, 1)";
+		ctx.lineWidth = 2;
+		ctx.stroke();
+
+		// Draw coin value
+		ctx.font = "bold 14px Inter";
+		ctx.fillStyle =
+			count > 0
+				? "#ffffff"
+				: getComputedStyle(document.documentElement).getPropertyValue(
+						"--text-color"
+				  );
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText(`$${coin.toFixed(2)}`, x, y);
+
+		// Draw count if selected
+		if (count > 0) {
+			ctx.font = "bold 14px Inter";
+			ctx.fillStyle = "#4CAF50";
+			ctx.textAlign = "center";
+			ctx.fillText(`× ${count}`, x, y + coinRadius + 20);
+		}
+	});
+
+	// Draw total coins used
+	if (selectedCoins.length > 0) {
+		ctx.font = "16px Inter";
+		ctx.fillStyle = getComputedStyle(
+			document.documentElement
+		).getPropertyValue("--text-color");
+		ctx.textAlign = "center";
+		ctx.fillText(
+			`Total coins used: ${selectedCoins.length}`,
+			canvas.width / 2,
+			canvas.height - 30
+		);
+	}
+}
 
 function logStep(message) {
-    const stepElement = document.createElement("div");
-    stepElement.textContent = message;
-    stepsContainer.appendChild(stepElement);
+	const stepElement = document.createElement("div");
+	stepElement.textContent = message;
+	stepsContainer.appendChild(stepElement);
 }
 
-
-
-        
 class Node {
-  constructor(value) {
-    this.value = value;
-    this.left = null;
-    this.right = null;
-  }
+	constructor(value) {
+		this.value = value;
+		this.left = null;
+		this.right = null;
+	}
 }
 
 function createBinaryTree(arr) {
-  if (!arr.length) return null;
+	if (!arr.length) return null;
 
-  const root = new Node(arr[0]);
-  const queue = [root];
-  let i = 1;
+	const root = new Node(arr[0]);
+	const queue = [root];
+	let i = 1;
 
-  while (i < arr.length) {
-    const current = queue.shift();
+	while (i < arr.length) {
+		const current = queue.shift();
 
-    if (arr[i] !== null) {
-      current.left = new Node(arr[i]);
-      queue.push(current.left);
-    }
-    i++;
+		if (arr[i] !== null) {
+			current.left = new Node(arr[i]);
+			queue.push(current.left);
+		}
+		i++;
 
-    if (i < arr.length && arr[i] !== null) {
-      current.right = new Node(arr[i]);
-      queue.push(current.right);
-    }
-    i++;
-  }
+		if (i < arr.length && arr[i] !== null) {
+			current.right = new Node(arr[i]);
+			queue.push(current.right);
+		}
+		i++;
+	}
 
-  return root;
+	return root;
 }
 
 // Visualization Function
 function visualizeDepthFirstSearch() {
-    console.log('Starting Depth-First Search visualization.');
+	clearSteps();
 
-    // Prompt the user for the number of nodes
-    const nodeCount = parseInt(prompt('Enter the number of nodes in the tree (e.g., 5, 10):', '10')) || 10;
+	// Use a default value instead of prompting
+	const validatedNumNodes = 7;
 
-    // Generate an array with node values
-    const arr = Array.from({ length: nodeCount }, (_, i) => i + 1);
+	// Create a binary tree for DFS visualization with the specified number of nodes
+	const root = generateBalancedBinaryTree(validatedNumNodes);
 
-    // Create the binary tree
-    const tree = createBinaryTree(arr);
+	// Canvas dimensions
+	const width = canvas.width;
+	const height = canvas.height;
 
-    console.log('Generated Binary Tree:', tree);
+	// Node positions
+	const nodePositions = {};
 
-    const positions = {};
-    const visited = [];
-    const delay = 500;
+	// Visited nodes
+	const visited = [];
 
-    // Initialize canvas
-    const canvas = document.getElementById('algorithm-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 400;
+	// Flag to track if completion message has been shown
+	let completionMessageShown = false;
 
-    // Initialize the steps container for visited nodes
-    const stepsContainer = document.getElementById('steps-container');
-    if (!stepsContainer) {
-        console.error('Steps container not found!');
-        return;
-    }
-    stepsContainer.innerHTML = '<h4>Visited Nodes</h4>'; // Reset and add heading
+	// Calculate positions for each node
+	calculatePositions(root, 0, 0, width);
 
-    // Calculate positions for tree nodes
-    function calculatePositions(node, level, xOffset, width) {
-        if (!node) return;
+	// Draw the initial tree
+	drawTree(root, visited);
 
-        positions[node.value] = { x: xOffset, y: level * 80 + 50 };
+	// Add initial step
+	addStep(
+		`Starting Depth-First Search on binary tree with ${validatedNumNodes} nodes`,
+		"current-step"
+	);
 
-        const gap = width / 2;
-        calculatePositions(node.left, level + 1, xOffset - gap, gap);
-        calculatePositions(node.right, level + 1, xOffset + gap, gap);
-    }
+	// Start DFS after a delay
+	trackableSetTimeout(() => dfs(root), 500); // Faster animation (was 1000)
 
-    // Draw the tree on the canvas
-    function drawTree(current) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Function to calculate node positions
+	function calculatePositions(node, level, xOffset, width) {
+		if (!node) return;
 
-        function drawEdges(node) {
-            if (!node) return;
-            const pos = positions[node.value];
-            if (node.left) {
-                const leftPos = positions[node.left.value];
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-                ctx.lineTo(leftPos.x, leftPos.y);
-                ctx.stroke();
-            }
-            if (node.right) {
-                const rightPos = positions[node.right.value];
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-                ctx.lineTo(rightPos.x, rightPos.y);
-                ctx.stroke();
-            }
-            drawEdges(node.left);
-            drawEdges(node.right);
-        }
-        drawEdges(tree);
+		const y = 60 + level * 80;
+		const x = xOffset + width / 2;
 
-        function drawNodes(node) {
-            if (!node) return;
+		nodePositions[node.value] = { x, y };
 
-            const { x, y } = positions[node.value];
-            ctx.fillStyle = visited.includes(node.value) ? '#aed6f1' : '#e0e0e0';
-            ctx.beginPath();
-            ctx.arc(x, y, 20, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#666';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.value, x, y);
+		const nextWidth = width / 2;
+		calculatePositions(node.left, level + 1, xOffset, nextWidth);
+		calculatePositions(node.right, level + 1, xOffset + nextWidth, nextWidth);
+	}
 
-            drawNodes(node.left);
-            drawNodes(node.right);
-        }
-        drawNodes(tree);
+	// Function to draw the tree
+	function drawTree(current, visitedNodes) {
+		ctx.clearRect(0, 0, width, height);
 
-        if (current !== undefined) {
-            const { x, y } = positions[current];
-            ctx.strokeStyle = '#1abc9c'; // Highlight current node in teal
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(x, y, 24, 0, 2 * Math.PI);
-            ctx.stroke();
-        }
-    }
+		// Draw edges first
+		function drawEdges(node) {
+			if (!node) return;
 
-    // Perform Depth-First Search
-    async function dfs(node) {
-        if (!node || visited.includes(node.value)) return;
+			if (node.left) {
+				const startPos = nodePositions[node.value];
+				const endPos = nodePositions[node.left.value];
 
-        visited.push(node.value);
+				ctx.beginPath();
+				ctx.moveTo(startPos.x, startPos.y);
+				ctx.lineTo(endPos.x, endPos.y);
+				ctx.strokeStyle = "rgba(94, 181, 218, 1.0)";
+				ctx.lineWidth = 2;
+				ctx.stroke();
+			}
 
-        // Update steps container with the visited node
-        stepsContainer.innerHTML += `<p>Visited Node: ${node.value}</p>`;
+			if (node.right) {
+				const startPos = nodePositions[node.value];
+				const endPos = nodePositions[node.right.value];
 
-        drawTree(node.value);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+				ctx.beginPath();
+				ctx.moveTo(startPos.x, startPos.y);
+				ctx.lineTo(endPos.x, endPos.y);
+				ctx.strokeStyle = "rgba(94, 181, 218, 1.0)";
+				ctx.lineWidth = 2;
+				ctx.stroke();
+			}
 
-        await dfs(node.left);
-        await dfs(node.right);
-    }
+			drawEdges(node.left);
+			drawEdges(node.right);
+		}
 
-    calculatePositions(tree, 0, canvas.width / 2, canvas.width / 4); // Calculate positions for all nodes
-    drawTree(); // Draw the initial tree
-    dfs(tree); // Start DFS from the root node
+		// Draw nodes
+		function drawNodes(node) {
+			if (!node) return;
+
+			const pos = nodePositions[node.value];
+
+			// Draw node circle
+			ctx.beginPath();
+			ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+
+			// Use more vibrant colors that match the step tracking
+			if (current && node.value === current.value) {
+				ctx.fillStyle = "#79dc7c"; // Current node - bright blue
+			} else if (visitedNodes.includes(node.value)) {
+				ctx.fillStyle = "#8ce88f"; // Visited node - bright green
+			} else {
+				ctx.fillStyle = "#7fa9d9"; // Default node - lighter blue
+			}
+
+			ctx.fill();
+			ctx.strokeStyle = "#2a6f97"; // Darker blue for border
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			// Draw node value with white text for better contrast
+			if (
+				(current && node.value === current.value) ||
+				visitedNodes.includes(node.value)
+			) {
+				ctx.fillStyle = "#ffffff"; // White text on colored backgrounds
+			} else {
+				ctx.fillStyle = "#333333"; // Dark text on light backgrounds
+			}
+			ctx.font = "bold 14px Inter";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(node.value, pos.x, pos.y);
+
+			drawNodes(node.left);
+			drawNodes(node.right);
+		}
+
+		drawEdges(root);
+		drawNodes(root);
+	}
+
+	// DFS implementation
+	async function dfs(node) {
+		if (!node) return;
+
+		// Mark current node as visited
+		visited.push(node.value);
+
+		// Update visualization
+		drawTree(node, visited);
+		addStep(`Visiting node ${node.value}`, "visited-node");
+
+		// Wait before continuing
+		await new Promise((resolve) => trackableSetTimeout(resolve, 500)); // Faster animation (was 1000)
+
+		// Visit left subtree
+		if (node.left) {
+			addStep(`Moving to left child ${node.left.value}`);
+			await dfs(node.left);
+		}
+
+		// Visit right subtree
+		if (node.right) {
+			addStep(`Moving to right child ${node.right.value}`);
+			await dfs(node.right);
+		}
+
+		// Backtracking
+		if (node.left || node.right) {
+			addStep(`Backtracking from node ${node.value}`, "current-step");
+		}
+
+		// If we've visited all nodes, mark as complete
+		if (visited.length === Object.keys(nodePositions).length) {
+			addStep("Depth-First Search complete!", "path-node");
+			drawTree(null, visited);
+			algorithmComplete(); // Reset flag when complete
+		}
+	}
+}
+
+// Helper function to generate a balanced binary tree with n nodes
+function generateBalancedBinaryTree(n) {
+	if (n <= 0) return null;
+
+	// Create an array of values from 1 to n
+	const values = Array.from({ length: n }, (_, i) => i + 1);
+
+	// Shuffle the array to get random values
+	for (let i = values.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[values[i], values[j]] = [values[j], values[i]];
+	}
+
+	// Build a balanced tree from the values
+	return buildBalancedTree(values, 0, values.length - 1);
+}
+
+// Helper function to build a balanced binary tree from a sorted array
+function buildBalancedTree(values, start, end) {
+	if (start > end) return null;
+
+	// Get the middle element as the root
+	const mid = Math.floor((start + end) / 2);
+
+	// Create the root node
+	const node = {
+		value: values[mid],
+		left: null,
+		right: null,
+	};
+
+	// Recursively build left and right subtrees
+	node.left = buildBalancedTree(values, start, mid - 1);
+	node.right = buildBalancedTree(values, mid + 1, end);
+
+	return node;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+	// Tab navigation
+	const navLinks = document.querySelectorAll("nav ul li a");
+	const tabContents = document.querySelectorAll(".tab-content");
+
+	navLinks.forEach((link) => {
+		link.addEventListener("click", function (e) {
+			e.preventDefault();
+			const targetId = this.getAttribute("href").substring(1);
+
+			// Remove active class from all links and contents
+			navLinks.forEach((link) => link.classList.remove("active"));
+			tabContents.forEach((content) => content.classList.remove("active"));
+
+			// Add active class to clicked link and corresponding content
+			this.classList.add("active");
+			document.getElementById(targetId).classList.add("active");
+		});
+	});
+
+	// Project navigation buttons
+	const projectNavBtns = document.querySelectorAll(".project-nav-btn");
+	const projects = document.querySelectorAll(".project");
+
+	// Initialize - show only the active project
+	function initializeProjects() {
+		// First hide all projects
+		projects.forEach((project) => {
+			project.style.display = "none";
+			project.classList.remove("active");
+		});
+
+		// Then show only the active one
+		const activeBtn = document.querySelector(".project-nav-btn.active");
+		if (activeBtn) {
+			const targetId = activeBtn.getAttribute("data-target");
+			const targetProject = document.getElementById(targetId);
+			if (targetProject) {
+				targetProject.style.display = "block";
+				targetProject.classList.add("active");
+			}
+		} else if (projects.length > 0) {
+			// If no active button, activate the first one
+			projectNavBtns[0]?.classList.add("active");
+			const firstProject = document.getElementById(
+				projectNavBtns[0]?.getAttribute("data-target")
+			);
+			if (firstProject) {
+				firstProject.style.display = "block";
+				firstProject.classList.add("active");
+			}
+		}
+	}
+
+	// Handle project navigation button clicks
+	projectNavBtns.forEach((btn) => {
+		btn.addEventListener("click", function () {
+			const targetId = this.getAttribute("data-target");
+
+			// Remove active class from all buttons and hide all projects
+			projectNavBtns.forEach((btn) => btn.classList.remove("active"));
+			projects.forEach((project) => {
+				project.style.display = "none";
+				project.classList.remove("active");
+			});
+
+			// Add active class to clicked button and show corresponding project
+			this.classList.add("active");
+			const targetProject = document.getElementById(targetId);
+			if (targetProject) {
+				targetProject.style.display = "block";
+				targetProject.classList.add("active");
+
+				// Scroll to the top of the selected project
+				targetProject.scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+				});
+
+				// If the project is inside a scrollable container, also scroll the container
+				const projectsTab = document.getElementById("projects");
+				if (projectsTab) {
+					projectsTab.scrollTop = 0;
+				}
+			}
+
+			// If it's the algorithm visualizer, reset the canvas
+			if (targetId === "algorithm-visualizer") {
+				setTimeout(() => {
+					resizeCanvas();
+					drawCanvasPlaceholder();
+				}, 100);
+			}
+		});
+	});
+
+	// Initialize projects on page load
+	initializeProjects();
+
+	// Photo transition on hover
+	const photoContainer = document.querySelector(".photo-container");
+	const youngPhoto = document.getElementById("young-photo");
+	const currentPhoto = document.getElementById("current-photo");
+
+	if (photoContainer) {
+		photoContainer.addEventListener("mouseenter", function () {
+			youngPhoto.style.opacity = "0";
+			currentPhoto.style.opacity = "1";
+		});
+
+		photoContainer.addEventListener("mouseleave", function () {
+			youngPhoto.style.opacity = "1";
+			currentPhoto.style.opacity = "0";
+		});
+	}
+
+	// Add this to the existing project navigation code
+	projectNavBtns.forEach((btn) => {
+		btn.addEventListener("click", function () {
+			const targetId = this.dataset.target;
+
+			// If Algorithm Visualizer is selected, initialize it
+			if (targetId === "algorithm-visualizer") {
+				setTimeout(() => {
+					initializeAlgorithmVisualizer();
+				}, 100);
+			}
+		});
+	});
+
+	// Initialize the visualizer if it's the active project on page load
+	if (
+		document
+			.getElementById("algorithm-visualizer")
+			.classList.contains("active")
+	) {
+		setTimeout(() => {
+			initializeAlgorithmVisualizer();
+		}, 100);
+	}
+});
+
+// Function to add a step with index to the steps container
+function addStep(text, className = "") {
+	// Clear the container if it's the first step
+	if (document.querySelectorAll(".step-item").length === 0) {
+		stepsContainer.innerHTML = "<h4>Visited Nodes</h4>";
+	}
+
+	const stepItem = document.createElement("div");
+	stepItem.className = `step-item ${className}`;
+	stepItem.textContent = text;
+
+	// Set the data-index attribute for the step counter
+	const stepCount = document.querySelectorAll(".step-item").length + 1;
+	stepItem.setAttribute("data-index", stepCount);
+
+	stepsContainer.appendChild(stepItem);
+
+	// Scroll to the bottom to show the latest step
+	stepsContainer.scrollTop = stepsContainer.scrollHeight;
+}
+
+// Function to clear steps
+function clearSteps() {
+	stepsContainer.innerHTML = "<h4>Visited Nodes</h4>";
+}
+
+// Initialize the algorithm visualizer when the tab is shown
+function initializeAlgorithmVisualizer() {
+	resizeCanvas();
+	drawCanvasPlaceholder();
+	clearSteps();
+}
+
+// Helper functions for visualizations
+
+// Generate a random array of integers
+function generateRandomArray(length, min, max) {
+	return Array.from(
+		{ length },
+		() => Math.floor(Math.random() * (max - min + 1)) + min
+	);
+}
+
+// Draw an array as bars
+function drawArray(array, highlightIndex1 = -1, highlightIndex2 = -1) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	const barWidth = (canvas.width - 40) / array.length;
+	const maxValue = Math.max(...array);
+	const scaleFactor = (canvas.height - 60) / maxValue;
+
+	array.forEach((value, index) => {
+		const x = 20 + index * barWidth;
+		const barHeight = value * scaleFactor;
+		const y = canvas.height - 30 - barHeight;
+
+		// Determine bar color based on highlight status
+		if (index === highlightIndex1 || index === highlightIndex2) {
+			ctx.fillStyle = "rgba(94, 181, 218, 0.8)"; // Highlight color
+		} else {
+			ctx.fillStyle = "rgba(94, 181, 218, 0.4)"; // Regular color
+		}
+
+		// Draw bar
+		ctx.beginPath();
+		ctx.roundRect(x, y, barWidth - 4, barHeight, 4);
+		ctx.fill();
+
+		// Draw value text
+		ctx.fillStyle = getComputedStyle(
+			document.documentElement
+		).getPropertyValue("--text-color");
+		ctx.font = "12px Inter";
+		ctx.textAlign = "center";
+		ctx.fillText(value.toString(), x + (barWidth - 4) / 2, y - 5);
+	});
+}
+
+// Draw a sorted array for binary search
+function drawSortedArray(array) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	const boxWidth = (canvas.width - 40) / array.length;
+	const boxHeight = 40;
+	const y = (canvas.height - boxHeight) / 2;
+
+	array.forEach((value, index) => {
+		const x = 20 + index * boxWidth;
+
+		// Draw box
+		ctx.fillStyle = "rgba(94, 181, 218, 0.2)";
+		ctx.strokeStyle = "rgba(94, 181, 218, 0.8)";
+		ctx.lineWidth = 2;
+
+		ctx.beginPath();
+		ctx.roundRect(x, y, boxWidth - 4, boxHeight, 4);
+		ctx.fill();
+		ctx.stroke();
+
+		// Draw value
+		ctx.fillStyle = getComputedStyle(
+			document.documentElement
+		).getPropertyValue("--text-color");
+		ctx.font = "14px Inter";
+		ctx.textAlign = "center";
+		ctx.fillText(
+			value.toString(),
+			x + (boxWidth - 4) / 2,
+			y + boxHeight / 2 + 5
+		);
+
+		// Draw index
+		ctx.font = "12px Inter";
+		ctx.fillText(
+			index.toString(),
+			x + (boxWidth - 4) / 2,
+			y + boxHeight + 15
+		);
+	});
+}
+
+// Draw sorted array with pointers for binary search
+function drawSortedArrayWithPointers(array, left, mid, right) {
+	drawSortedArray(array);
+
+	const boxWidth = (canvas.width - 40) / array.length;
+	const boxHeight = 40;
+	const y = (canvas.height - boxHeight) / 2;
+
+	// Highlight the search range
+	for (let i = left; i <= right; i++) {
+		const x = 20 + i * boxWidth;
+
+		ctx.fillStyle = "rgba(94, 181, 218, 0.3)";
+		ctx.beginPath();
+		ctx.roundRect(x, y, boxWidth - 4, boxHeight, 4);
+		ctx.fill();
+	}
+
+	// Highlight mid element
+	const midX = 20 + mid * boxWidth;
+	ctx.fillStyle = "rgba(94, 181, 218, 0.8)";
+	ctx.beginPath();
+	ctx.roundRect(midX, y, boxWidth - 4, boxHeight, 4);
+	ctx.fill();
+
+	// Draw labels
+	ctx.font = "12px Inter";
+	ctx.fillStyle = "#4CAF50";
+	ctx.fillText("L", 20 + left * boxWidth + (boxWidth - 4) / 2, y - 15);
+
+	ctx.fillStyle = "#FF5722";
+	ctx.fillText("R", 20 + right * boxWidth + (boxWidth - 4) / 2, y - 15);
+
+	ctx.fillStyle = "#9C27B0";
+	ctx.fillText("M", midX + (boxWidth - 4) / 2, y - 15);
+}
+
+// Draw sorted array with target highlighted
+function drawSortedArrayWithTarget(array, targetIndex) {
+	drawSortedArray(array);
+
+	if (targetIndex >= 0 && targetIndex < array.length) {
+		const boxWidth = (canvas.width - 40) / array.length;
+		const boxHeight = 40;
+		const y = (canvas.height - boxHeight) / 2;
+		const x = 20 + targetIndex * boxWidth;
+
+		// Highlight target element
+		ctx.fillStyle = "#4CAF50";
+		ctx.beginPath();
+		ctx.roundRect(x, y, boxWidth - 4, boxHeight, 4);
+		ctx.fill();
+
+		// Draw value in white
+		ctx.fillStyle = "white";
+		ctx.font = "14px Inter";
+		ctx.textAlign = "center";
+		ctx.fillText(
+			array[targetIndex].toString(),
+			x + (boxWidth - 4) / 2,
+			y + boxHeight / 2 + 5
+		);
+
+		// Draw "Found!" label
+		ctx.fillStyle = "#4CAF50";
+		ctx.font = "bold 14px Inter";
+		ctx.fillText("Found!", x + (boxWidth - 4) / 2, y - 15);
+	}
+}
+
+// Add this function to reset the algorithm running flag
+function algorithmComplete() {
+	isAlgorithmRunning = false;
+	currentTimeouts = []; // Clear the timeouts array
+	console.log("Algorithm completed, ready for next run");
+}
+
+// Experience tab enhancements
+document.addEventListener("DOMContentLoaded", function () {
+	const experienceTab = document.getElementById("experience");
+	const jobs = document.querySelectorAll(".job");
+
+	// Add hover effect for job items
+	jobs.forEach((job, index) => {
+		// Add data attribute for animation sequencing
+		job.setAttribute("data-index", index);
+
+		// Add click event to expand/collapse job details on mobile
+		job.addEventListener("click", function () {
+			if (window.innerWidth <= 768) {
+				this.classList.toggle("expanded");
+			}
+		});
+	});
+
+	// Add scroll effect for the timeline
+	if (experienceTab) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						const job = entry.target;
+						const delay = parseInt(job.getAttribute("data-index")) * 200;
+
+						setTimeout(() => {
+							job.classList.add("in-view");
+						}, delay);
+					}
+				});
+			},
+			{ threshold: 0.2 }
+		);
+
+		jobs.forEach((job) => {
+			observer.observe(job);
+		});
+	}
+
+	// Add tech tag hover effect
+	const techTags = document.querySelectorAll(".tech-tag");
+	techTags.forEach((tag) => {
+		tag.addEventListener("mouseenter", function () {
+			// Add a subtle pulse animation
+			this.style.animation = "pulse 0.5s ease-in-out";
+
+			// Highlight related skills in the skills section
+			const skill = this.textContent.trim();
+			const skillElements = document.querySelectorAll(".skill");
+
+			skillElements.forEach((element) => {
+				if (element.textContent.trim() === skill) {
+					element.classList.add("highlighted");
+				}
+			});
+		});
+
+		tag.addEventListener("mouseleave", function () {
+			this.style.animation = "";
+
+			// Remove highlight from skills
+			const skillElements = document.querySelectorAll(".skill");
+			skillElements.forEach((element) => {
+				element.classList.remove("highlighted");
+			});
+		});
+	});
+});
+
+// Add a pulse animation for tech tags
+const styleSheet = document.styleSheets[0];
+const pulseKeyframes = `
+@keyframes pulse {
+	0% { transform: scale(1); }
+	50% { transform: scale(1.1); }
+	100% { transform: scale(1); }
+}`;
+
+try {
+	styleSheet.insertRule(pulseKeyframes, styleSheet.cssRules.length);
+} catch (e) {
+	console.warn("Could not add keyframe animation", e);
 }
