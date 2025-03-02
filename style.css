@@ -1,3 +1,72 @@
+/* 
+ * Portfolio Styles
+ * 
+ * Note: This file contains duplicate media queries that should be consolidated.
+ * The main mobile styles are defined in the media query starting at line 56.
+ */
+
+/* Corner Logo Styles */
+.corner-logo {
+	position: fixed;
+	top: 20px;
+	left: 20px;
+	display: none; /* Hide on desktop by default */
+	align-items: center;
+	z-index: 1000;
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	color: var(--text-color);
+}
+
+.corner-logo img {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	object-fit: cover;
+	margin-right: 10px;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.corner-logo span {
+	font-size: 16px;
+	white-space: nowrap;
+}
+
+/* Show corner logo on mobile */
+@media (max-width: 768px) {
+	.corner-logo {
+		display: flex;
+		top: 15px;
+		left: 15px;
+		z-index: 999; /* Just below the mobile menu toggle */
+	}
+
+	/* Hide corner logo when mobile menu is visible */
+	.left-column.mobile-visible ~ .corner-logo,
+	body:has(.left-column.mobile-visible) .corner-logo {
+		display: none;
+	}
+
+	/* Make the logo smaller on mobile */
+	.corner-logo img {
+		width: 32px;
+		height: 32px;
+	}
+
+	.corner-logo span {
+		font-size: 14px;
+	}
+}
+
+/* Dark mode styles for corner logo */
+.dark-mode .corner-logo {
+	color: var(--dark-text-color);
+}
+
+.dark-mode .corner-logo img {
+	border-color: rgba(0, 0, 0, 0.2);
+}
+
 /* Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap");
 
@@ -44,24 +113,211 @@
 
 body,
 html {
-	font-family: "Inter", sans-serif;
-	line-height: 1.6;
-	color: var(--text-color);
 	margin: 0;
 	padding: 0;
-	height: 100%;
+	font-family: "Inter", sans-serif;
 	background-color: var(--bg-color);
-	transition: background-color 0.3s, color 0.3s;
+	color: var(--text-color);
+	transition: background-color 0.3s ease, color 0.3s ease;
+	height: 100%;
+	overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+	body {
+		overflow-x: hidden;
+		overflow-y: auto;
+		min-height: 100vh;
+	}
+
+	.container {
+		flex-direction: column;
+		height: auto;
+		overflow: visible;
+		min-height: 100vh;
+	}
+
+	.left-column {
+		width: 100%;
+		padding: 20px 20px 20px 0; /* Top, Right, Bottom, Left - removed left padding */
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: auto;
+		z-index: 100;
+		transform: translateY(-100%);
+		transition: transform 0.3s ease;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		background-color: var(--container-bg); /* Ensure background is opaque */
+		opacity: 0; /* Start with opacity 0 */
+		visibility: hidden; /* Hide it completely when not active */
+	}
+
+	/* Force no left padding on all elements in the mobile menu */
+	.left-column * {
+		padding-left: 0;
+	}
+
+	/* Add padding only to specific elements that need it */
+	.left-column > div {
+		padding-left: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		width: 100%; /* Ensure full width */
+	}
+
+	.left-column nav ul li a {
+		padding-left: 10px;
+	}
+
+	.contact-info svg,
+	.left-column .personal-logo,
+	.left-column h1,
+	.left-column .subtitle {
+		margin-left: 0;
+	}
+
+	.left-column.mobile-visible {
+		transform: translateY(0);
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.right-column {
+		width: 100%;
+		margin-top: 70px; /* Increased space for the mobile toggle button */
+		padding: 20px 0; /* Remove horizontal padding */
+		height: auto;
+		min-height: calc(100vh - 70px);
+		overflow: visible;
+		position: relative;
+		background: var(--bg-color);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+	.mobile-menu-toggle {
+		display: flex; /* Show the toggle button on mobile */
+	}
+
+	.personal-logo {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 10px;
+		display: block;
+	}
+
+	.left-column h1,
+	.left-column .subtitle {
+		text-align: center;
+	}
+
+	nav ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-start; /* Changed from center to flex-start */
+		gap: 10px;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	nav ul li {
+		margin-bottom: 0;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	.dark-mode-toggle {
+		margin: 10px auto 0;
+	}
+
+	/* Fix for the cube animation */
+	.cube-container {
+		width: 200px;
+		height: 200px;
+		position: relative;
+		perspective: 1500px;
+		margin: 0 auto;
+	}
+
+	.cube-face {
+		width: 200px;
+		height: 200px;
+		font-size: 28px;
+	}
+
+	.front {
+		transform: rotateY(0deg) translateZ(100px);
+	}
+	.right {
+		transform: rotateY(90deg) translateZ(100px);
+	}
+	.back {
+		transform: rotateY(180deg) translateZ(100px);
+	}
+	.left {
+		transform: rotateY(-90deg) translateZ(100px);
+	}
+	.top {
+		transform: rotateX(90deg) translateZ(100px);
+	}
+	.bottom {
+		transform: rotateX(-90deg) translateZ(100px);
+	}
+
+	/* Fix for the main content area */
+	#main.active {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		min-height: 60vh;
+		height: auto;
+		padding: 20px 0;
+		width: 100%;
+		position: relative;
+		margin: 0 auto; /* Center the main content */
+		overflow: visible;
+	}
+
+	#main {
+		display: none;
+	}
+
+	.cube {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		transform-style: preserve-3d;
+		animation: rotate 20s infinite linear;
+	}
+
+	/* Add a specific style for the personal logo in mobile view */
+	.left-column .personal-logo {
+		display: block;
+		margin: 0 auto 15px;
+		width: 80px;
+		height: 80px;
+	}
+
+	/* Center the content in the left column */
+	.left-column > div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		width: 100%;
+	}
 }
 
 /* 3D Cube Styles */
 .cube-container {
 	width: 300px;
 	height: 300px;
-	position: absolute;
-	top: 50%;
-	left: 36%;
-	transform: translate(-50%, -50%);
+	position: relative;
 	perspective: 2000px;
 }
 
@@ -118,14 +374,10 @@ html {
 
 #main.active {
 	display: flex;
-	flex-direction: column;
-	align-items: center;
 	justify-content: center;
+	align-items: center;
 	height: 100%;
-}
-
-#main {
-	display: none;
+	position: relative;
 }
 
 .container {
@@ -308,7 +560,21 @@ nav ul li.dropdown .dropbtn.active::before {
 	max-width: 300px;
 	text-align: right;
 	margin-left: auto;
+	color: var(--text-color);
+	line-height: 1.6;
 }
+
+@media (max-width: 768px) {
+	.bio {
+		font-size: 1rem;
+		line-height: 1.5;
+		margin: 20px auto;
+		padding: 0 15px;
+		text-align: center;
+		max-width: 100%;
+	}
+}
+
 .dark-mode-toggle {
 	position: absolute;
 	bottom: 20px;
@@ -905,6 +1171,172 @@ nav ul li.dropdown .dropbtn.active::before {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+	body {
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
+
+	.container {
+		flex-direction: column;
+		height: auto;
+		overflow: visible;
+	}
+
+	.left-column {
+		width: 100%;
+		padding: 20px 20px 20px 0; /* Top, Right, Bottom, Left - removed left padding */
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: auto;
+		z-index: 100;
+		transform: translateY(-100%);
+		transition: transform 0.3s ease;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		background-color: var(--container-bg); /* Ensure background is opaque */
+		opacity: 0; /* Start with opacity 0 */
+		visibility: hidden; /* Hide it completely when not active */
+	}
+
+	/* Add padding to inner content instead */
+	.left-column > div {
+		padding-left: 0; /* Remove left padding completely */
+		padding-right: 0; /* Remove right padding for symmetry */
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		width: 100%; /* Ensure full width */
+		margin: 0 auto; /* Center the div itself */
+	}
+
+	.left-column.mobile-visible {
+		transform: translateY(0);
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.right-column {
+		width: 100%;
+		margin-top: 70px; /* Increased space for the mobile toggle button */
+		padding: 20px 0; /* Remove horizontal padding */
+		height: auto;
+		min-height: calc(100vh - 70px);
+		overflow: visible;
+		position: relative;
+		background: var(--bg-color);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+	.mobile-menu-toggle {
+		display: flex; /* Show the toggle button on mobile */
+	}
+
+	.personal-logo {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 10px;
+		display: block;
+	}
+
+	.left-column h1,
+	.left-column .subtitle {
+		text-align: center;
+	}
+
+	nav ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-start; /* Changed from center to flex-start */
+		gap: 10px;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	nav ul li {
+		margin-bottom: 0;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	.dark-mode-toggle {
+		margin: 10px auto 0;
+	}
+
+	/* Fix for the main content area */
+	#main.active {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		min-height: 60vh;
+		height: auto;
+		padding: 20px 0;
+		width: 100%;
+		position: relative;
+		margin: 0 auto; /* Center the main content */
+		overflow: visible;
+	}
+
+	.tab-content {
+		opacity: 1;
+		display: none;
+		margin-top: 0;
+		padding: 0;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.tab-content.active {
+		display: block;
+		margin: 0 auto;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.cube-container {
+		width: 200px;
+		height: 200px;
+		position: relative;
+		perspective: 1500px;
+		margin: 0 auto;
+	}
+
+	.cube-face {
+		width: 200px;
+		height: 200px;
+		font-size: 28px;
+	}
+
+	.front {
+		transform: rotateY(0deg) translateZ(100px);
+	}
+	.right {
+		transform: rotateY(90deg) translateZ(100px);
+	}
+	.back {
+		transform: rotateY(180deg) translateZ(100px);
+	}
+	.left {
+		transform: rotateY(-90deg) translateZ(100px);
+	}
+	.top {
+		transform: rotateX(90deg) translateZ(100px);
+	}
+	.bottom {
+		transform: rotateX(-90deg) translateZ(100px);
+	}
+
+	.bio {
+		padding: 0 15px; /* Add some horizontal padding to the bio text specifically */
+		text-align: center;
+		margin: 0 auto 20px;
+		max-width: 100%;
+	}
+
+	/* Contact section fixes */
 	.contact-container {
 		flex-direction: column;
 		gap: 2rem;
@@ -1328,7 +1760,6 @@ nav ul li.dropdown .dropbtn.active::before {
 	cursor: pointer;
 	font-weight: 500;
 	transition: background-color 0.2s;
-	flex-grow: 0;
 }
 
 #run-algorithm:hover {
@@ -2225,4 +2656,554 @@ nav ul li.dropdown .dropbtn.active::before {
 
 .char-counter.error {
 	color: #dc3545;
+}
+
+/* Mobile Menu Styles */
+.mobile-menu-toggle {
+	display: none;
+	position: fixed;
+	top: 15px;
+	right: 15px;
+	z-index: 1000;
+	background-color: var(--highlight-color);
+	color: var(--container-bg);
+	border: none;
+	border-radius: 4px;
+	padding: 10px;
+	cursor: pointer;
+	font-weight: 500;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	width: 44px;
+	height: 44px;
+	align-items: center;
+	justify-content: center;
+}
+
+.mobile-menu-toggle svg {
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.container {
+		flex-direction: column;
+		height: auto;
+	}
+
+	.left-column {
+		width: 100%;
+		padding: 20px 20px 20px 0; /* Top, Right, Bottom, Left - removed left padding */
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: auto;
+		z-index: 100;
+		transform: translateY(-100%);
+		transition: transform 0.3s ease;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		background-color: var(--container-bg); /* Ensure background is opaque */
+		opacity: 0; /* Start with opacity 0 */
+		visibility: hidden; /* Hide it completely when not active */
+	}
+
+	/* Add padding to inner content instead */
+	.left-column > div {
+		padding-left: 0; /* Remove left padding completely */
+		padding-right: 0; /* Remove right padding for symmetry */
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		width: 100%; /* Ensure full width */
+		margin: 0 auto; /* Center the div itself */
+	}
+
+	.left-column.mobile-visible {
+		transform: translateY(0);
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.right-column {
+		width: 100%;
+		margin-top: 70px; /* Increased space for the mobile toggle button */
+		padding: 20px 0; /* Remove horizontal padding */
+		height: auto;
+		min-height: calc(100vh - 70px);
+		overflow: visible;
+		position: relative;
+		background: var(--bg-color);
+	}
+
+	.mobile-menu-toggle {
+		display: flex; /* Show the toggle button on mobile */
+	}
+
+	.personal-logo {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 10px;
+		display: block;
+	}
+
+	.left-column h1,
+	.left-column .subtitle {
+		text-align: center;
+	}
+
+	nav ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-start; /* Changed from center to flex-start */
+		gap: 10px;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	nav ul li {
+		margin-bottom: 0;
+		padding-left: 0; /* Ensure no left padding */
+	}
+
+	.dark-mode-toggle {
+		margin: 10px auto 0;
+	}
+
+	/* Fix for the main content area */
+	#main.active {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		min-height: 60vh;
+		height: auto;
+		padding: 20px 0;
+		width: 100%;
+		position: relative;
+		margin: 0 auto; /* Center the main content */
+		overflow: visible;
+	}
+
+	.tab-content {
+		opacity: 1;
+		display: none;
+		margin-top: 0;
+		padding: 0;
+		width: 100%;
+	}
+
+	.tab-content.active {
+		display: block;
+		margin: 0 auto;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.cube-container {
+		width: 200px;
+		height: 200px;
+		position: relative;
+		perspective: 1500px;
+		margin: 0 auto;
+	}
+
+	.cube-face {
+		width: 200px;
+		height: 200px;
+		font-size: 28px;
+	}
+
+	.front {
+		transform: rotateY(0deg) translateZ(100px);
+	}
+	.right {
+		transform: rotateY(90deg) translateZ(100px);
+	}
+	.back {
+		transform: rotateY(180deg) translateZ(100px);
+	}
+	.left {
+		transform: rotateY(-90deg) translateZ(100px);
+	}
+	.top {
+		transform: rotateX(90deg) translateZ(100px);
+	}
+	.bottom {
+		transform: rotateX(-90deg) translateZ(100px);
+	}
+
+	.bio {
+		padding: 0 15px; /* Add some horizontal padding to the bio text specifically */
+		text-align: center;
+		margin: 0 auto 20px;
+		max-width: 100%;
+	}
+
+	/* Contact section fixes */
+	.contact-container {
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.contact-form {
+		max-width: 100%;
+	}
+
+	.contact-info p {
+		margin-left: 0;
+	}
+
+	#contact {
+		padding: 2rem;
+		height: auto;
+	}
+}
+
+/* Smaller mobile devices */
+@media (max-width: 480px) {
+	.right-column {
+		padding: 15px;
+	}
+
+	nav ul {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	nav ul li {
+		margin-bottom: 5px;
+	}
+}
+
+.dark-mode .mobile-menu-toggle {
+	background-color: var(--dark-highlight-color);
+	color: var(--dark-container-bg);
+	box-shadow: 0 2px 10px rgba(126, 200, 227, 0.2);
+}
+
+@media (max-width: 768px) {
+	.dark-mode .left-column {
+		background-color: var(--dark-container-bg);
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+	}
+}
+
+.main-content-wrapper {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+@media (max-width: 768px) {
+	.main-content-wrapper {
+		width: 100%;
+		height: 60vh;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding-top: 56%;
+		position: relative;
+		padding-left: 8%;
+	}
+}
+
+/* Move the cube to the left on desktop screens */
+@media (min-width: 769px) {
+	.main-content-wrapper {
+		justify-content: flex-start;
+		padding-left: 19%;
+	}
+}
+
+/* Mobile styles for About section */
+@media (max-width: 768px) {
+	#about.active {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		padding: 1.5rem;
+		margin: 1.5rem auto;
+		align-items: center;
+		text-align: center;
+		width: 90%; /* Control the width */
+		max-width: 500px; /* Set a maximum width */
+		box-sizing: border-box; /* Include padding in width calculation */
+		left: 0;
+		right: 0;
+	}
+
+	.photo-container {
+		width: 70%;
+		padding-bottom: 70%;
+		margin: 0 auto 1rem;
+	}
+
+	.about-content {
+		padding: 0.5rem;
+		text-align: center;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.about-content h1 {
+		font-size: 1.8rem;
+		margin-bottom: 1rem;
+		text-align: center;
+		width: 100%;
+	}
+
+	.about-content p {
+		font-size: 0.95rem;
+		line-height: 1.5;
+		margin-bottom: 0.8rem;
+		text-align: center;
+		padding: 0 0.5rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	/* Improve photo transition on mobile */
+	#young-photo,
+	#current-photo {
+		object-position: center;
+	}
+}
+
+/* Mobile styles for all tabs */
+@media (max-width: 768px) {
+	/* Common styles for all tabs */
+	#experience,
+	#projects,
+	#skills,
+	#contact {
+		width: 90%;
+		max-width: 500px;
+		margin: 1.5rem auto;
+		padding: 1.5rem;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	/* Experience tab mobile styles */
+	#experience.active {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	#experience h2 {
+		font-size: 1.8rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.job {
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		margin-bottom: 2.5rem;
+		padding: 1rem;
+	}
+
+	.job-logo {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 1.5rem;
+	}
+
+	.job-details {
+		width: 100%;
+		text-align: center;
+		padding: 0 1rem 1rem;
+	}
+
+	.job-details ul {
+		text-align: left;
+		padding-left: 1.5rem;
+		margin-right: 0.5rem;
+	}
+
+	.tech-stack {
+		justify-content: center;
+		flex-wrap: wrap;
+		margin-top: 1.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	/* Projects tab mobile styles */
+	#projects.active {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	#projects h2 {
+		font-size: 1.8rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.project-nav {
+		flex-wrap: wrap;
+		justify-content: center;
+		margin-bottom: 1.5rem;
+	}
+
+	.project-nav-btn {
+		margin: 0.3rem;
+		font-size: 0.9rem;
+		padding: 0.5rem 0.8rem;
+	}
+
+	.project {
+		width: 100%;
+		padding: 1rem;
+		text-align: center;
+	}
+
+	.project ul {
+		text-align: left;
+		padding-left: 1.5rem;
+	}
+
+	.project img {
+		max-width: 100%;
+		height: auto;
+	}
+
+	/* Skills tab mobile styles */
+	#skills.active {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	#skills h2 {
+		font-size: 1.8rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.skills-container {
+		width: 100%;
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+	}
+
+	.skill-category {
+		padding: 1rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.skills {
+		justify-content: center;
+	}
+
+	.additional-skills {
+		width: 100%;
+		padding: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.additional-skills-list {
+		justify-content: center;
+	}
+
+	.languages {
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.language-item {
+		margin: 0.5rem 0;
+	}
+
+	/* Contact tab mobile styles */
+	#contact.active {
+		width: 90%;
+		max-width: 500px;
+		margin: 1.5rem auto;
+		padding: 1.5rem;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	#contact h2 {
+		font-size: 1.8rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.contact-container {
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		gap: 2rem;
+	}
+
+	.contact-form {
+		width: 100%;
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	.form-group {
+		margin-bottom: 1rem;
+	}
+
+	.form-group label {
+		margin-bottom: 0.3rem;
+		font-size: 0.9rem;
+	}
+
+	.contact-form input,
+	.contact-form textarea {
+		width: 90%;
+		padding: 0.7rem;
+		font-size: 0.9rem;
+		border-radius: 6px;
+	}
+
+	.contact-form button {
+		width: 100%;
+		padding: 0.8rem;
+		margin-top: 1rem;
+		font-size: 0.9rem;
+	}
+
+	.contact-info {
+		width: 100%;
+		max-width: 400px;
+		margin: 0 auto;
+		padding: 0;
+	}
+
+	.contact-info p {
+		margin-left: 0;
+		font-size: 0.9rem;
+		justify-content: center;
+	}
+
+	.social-links {
+		justify-content: center;
+		margin-top: 1.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.contact-form {
+		max-width: 100%;
+	}
+
+	.contact-info {
+		max-width: 100%;
+	}
+
+	.form-status {
+		padding: 0.8rem;
+		font-size: 0.85rem;
+	}
 }

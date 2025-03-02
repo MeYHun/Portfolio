@@ -10,6 +10,85 @@ let currentTimeouts = []; // Track all timeouts to be able to clear them
 
 //Menu tab for projects
 document.addEventListener("DOMContentLoaded", function () {
+	// Mobile menu toggle functionality
+	const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+	const leftColumn = document.querySelector(".left-column");
+
+	// Initialize dark mode for mobile menu
+	const isDarkMode = localStorage.getItem("darkMode") === "true";
+	if (isDarkMode && mobileMenuToggle) {
+		mobileMenuToggle.classList.add("dark-mode");
+	}
+
+	if (mobileMenuToggle) {
+		mobileMenuToggle.addEventListener("click", function () {
+			leftColumn.classList.toggle("mobile-visible");
+
+			// Get the corner logo element
+			const cornerLogo = document.querySelector(".corner-logo");
+
+			// Change the icon when menu is open
+			const isOpen = leftColumn.classList.contains("mobile-visible");
+			if (isOpen) {
+				mobileMenuToggle.innerHTML = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18"></line>
+					<line x1="6" y1="6" x2="18" y2="18"></line>
+				</svg>
+				`;
+
+				// Hide the corner logo when menu is open
+				if (cornerLogo) {
+					cornerLogo.style.display = "none";
+				}
+			} else {
+				mobileMenuToggle.innerHTML = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="3" y1="12" x2="21" y2="12"></line>
+					<line x1="3" y1="6" x2="21" y2="6"></line>
+					<line x1="3" y1="18" x2="21" y2="18"></line>
+				</svg>
+				`;
+
+				// Show the corner logo when menu is closed
+				if (cornerLogo) {
+					cornerLogo.style.display = "flex";
+				}
+			}
+		});
+
+		// Close menu when clicking on a menu item (for mobile)
+		const navLinks = document.querySelectorAll("nav ul li a");
+		navLinks.forEach((link) => {
+			link.addEventListener("click", function () {
+				if (window.innerWidth <= 768) {
+					leftColumn.classList.remove("mobile-visible");
+					mobileMenuToggle.innerHTML = `
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="3" y1="12" x2="21" y2="12"></line>
+							<line x1="3" y1="6" x2="21" y2="6"></line>
+							<line x1="3" y1="18" x2="21" y2="18"></line>
+						</svg>
+					`;
+				}
+			});
+		});
+	}
+
+	// Handle window resize to reset mobile menu state
+	window.addEventListener("resize", function () {
+		if (window.innerWidth > 768) {
+			leftColumn.classList.remove("mobile-visible");
+			mobileMenuToggle.innerHTML = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="3" y1="12" x2="21" y2="12"></line>
+					<line x1="3" y1="6" x2="21" y2="6"></line>
+					<line x1="3" y1="18" x2="21" y2="18"></line>
+				</svg>
+			`;
+		}
+	});
+
 	let projectLinks = document.querySelectorAll(".project-link");
 	let projects = document.querySelectorAll(".project");
 	let mainContent = document.querySelector("#main");
@@ -226,6 +305,16 @@ function toggleDarkMode() {
 		personalLogo.src = isDarkMode
 			? "images/my-notion-face-transparent.png"
 			: "images/white_portrait.png";
+	}
+
+	// Update mobile menu toggle styling for dark mode
+	const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+	if (mobileMenuToggle) {
+		if (isDarkMode) {
+			mobileMenuToggle.classList.add("dark-mode");
+		} else {
+			mobileMenuToggle.classList.remove("dark-mode");
+		}
 	}
 
 	// Apply dark mode to all elements that need specific styling
