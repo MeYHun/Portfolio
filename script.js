@@ -1833,3 +1833,213 @@ try {
 } catch (e) {
 	console.warn("Could not add keyframe animation", e);
 }
+
+// Store original form HTML
+let originalFormHTML = "";
+
+// Function to validate form inputs
+function validateContactForm(name, email, message) {
+	const errors = [];
+
+	// Validate name
+	if (!name.trim()) {
+		errors.push("Please enter your name");
+	}
+
+	// Validate email
+	if (!email.trim()) {
+		errors.push("Please enter your email address");
+	} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+		errors.push("Please enter a valid email address");
+	}
+
+	// Validate message
+	if (!message.trim()) {
+		errors.push("Please enter your message");
+	} else if (message.trim().length < 10) {
+		errors.push("Your message is too short (minimum 10 characters)");
+	} else if (message.length > 500) {
+		errors.push("Your message is too long (maximum 500 characters)");
+	}
+
+	return errors;
+}
+
+// Function to attach event listener to contact form
+function attachContactFormListener() {
+	const contactForm = document.getElementById("contact-form");
+	if (contactForm) {
+		// Store original form HTML if not already stored
+		if (!originalFormHTML) {
+			originalFormHTML = contactForm.innerHTML;
+		}
+
+		contactForm.addEventListener("submit", function (event) {
+			event.preventDefault();
+
+			// Get form values
+			const name = document.getElementById("name").value;
+			const email = document.getElementById("email").value;
+			const message = document.getElementById("message").value;
+
+			// Validate form inputs
+			const validationErrors = validateContactForm(name, email, message);
+			if (validationErrors.length > 0) {
+				// Show error notification with the first error
+				showNotification(validationErrors[0], "error");
+				return;
+			}
+
+			// Show loading state
+			const submitButton = contactForm.querySelector(
+				"button[type='submit']"
+			);
+			const originalButtonText = submitButton.innerHTML;
+			submitButton.innerHTML = '<span class="spinner"></span> Sending...';
+			submitButton.disabled = true;
+
+			// Prepare template parameters
+			const templateParams = {
+				from_name: name,
+				from_email: email,
+				message: message,
+				to_email: "yna08@terpmail.umd.edu", // Your email address
+			};
+
+			// Send email using EmailJS
+			emailjs
+				.send("yong_mail", "template_pearheq", templateParams)
+				.then(function (response) {
+					console.log("Email sent successfully!", response);
+					showNotification(
+						"Message sent successfully! I'll get back to you soon.",
+						"success"
+					);
+
+					// Show success message in the form
+					const successMessage = document.createElement("div");
+					successMessage.className = "form-success-message";
+					successMessage.innerHTML = `
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+							<polyline points="22 4 12 14.01 9 11.01"></polyline>
+						</svg>
+						<span>Message sent successfully! I'll get back to you soon.</span>
+					`;
+
+					// Clear form and append success message
+					contactForm.innerHTML = "";
+					contactForm.appendChild(successMessage);
+
+					// Reset form after 5 seconds
+					setTimeout(() => {
+						contactForm.innerHTML = originalFormHTML;
+						// Re-attach event listener to the new form
+						attachContactFormListener();
+						// Re-add character counter
+						addMessageCharCounter();
+					}, 5000);
+				})
+				.catch(function (error) {
+					console.error("Email failed to send:", error);
+					showNotification(
+						"Failed to send message. Please try again later.",
+						"error"
+					);
+				})
+				.finally(function () {
+					// Reset button state
+					submitButton.innerHTML = originalButtonText;
+					submitButton.disabled = false;
+				});
+		});
+	}
+}
+
+// Function to add character counter to message textarea
+function addMessageCharCounter() {
+	const messageTextarea = document.getElementById("message");
+	if (!messageTextarea) return;
+
+	// Create counter element
+	const counterContainer = document.createElement("div");
+	counterContainer.className = "char-counter";
+	counterContainer.innerHTML = `<span>0</span> / 500 characters`;
+
+	// Insert counter after textarea
+	messageTextarea.parentNode.insertBefore(
+		counterContainer,
+		messageTextarea.nextSibling
+	);
+
+	// Update counter on input
+	messageTextarea.addEventListener("input", function () {
+		const count = this.value.length;
+		const counterSpan = counterContainer.querySelector("span");
+		counterSpan.textContent = count;
+
+		// Add warning class if approaching limit
+		if (count > 400) {
+			counterContainer.classList.add("warning");
+		} else {
+			counterContainer.classList.remove("warning");
+		}
+
+		// Add error class if exceeding limit
+		if (count > 500) {
+			counterContainer.classList.add("error");
+		} else {
+			counterContainer.classList.remove("error");
+		}
+	});
+}
+
+// Update the DOMContentLoaded event handler
+document.addEventListener("DOMContentLoaded", function () {
+	// Initialize EmailJS with your public key
+	try {
+		emailjs.init("EYQS8cgo8Vb9c4Uow");
+		console.log("EmailJS initialized successfully");
+	} catch (error) {
+		console.error("Failed to initialize EmailJS:", error);
+	}
+
+	// Attach event listener to contact form
+	attachContactFormListener();
+
+	// Add character counter to message textarea
+	addMessageCharCounter();
+});
+
+// Function to show notification
+function showNotification(message, type) {
+	// Check if notification container exists, create if not
+	let notificationContainer = document.querySelector(
+		".notification-container"
+	);
+	if (!notificationContainer) {
+		notificationContainer = document.createElement("div");
+		notificationContainer.className = "notification-container";
+		document.body.appendChild(notificationContainer);
+	}
+
+	// Create notification element
+	const notification = document.createElement("div");
+	notification.className = `notification ${type}`;
+	notification.textContent = message;
+
+	// Add notification to container
+	notificationContainer.appendChild(notification);
+
+	// Remove notification after 5 seconds
+	setTimeout(() => {
+		notification.classList.add("fade-out");
+		setTimeout(() => {
+			notification.remove();
+			// Remove container if empty
+			if (notificationContainer.children.length === 0) {
+				notificationContainer.remove();
+			}
+		}, 500);
+	}, 5000);
+}

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>EmailJS Test</title>
+		<script
+			type="text/javascript"
+			src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+		></script>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 600px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+			.container {
+				border: 1px solid #ddd;
+				padding: 20px;
+				border-radius: 8px;
+			}
+			.form-group {
+				margin-bottom: 15px;
+			}
+			label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+			input,
+			textarea {
+				width: 100%;
+				padding: 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+			}
+			button {
+				background-color: #4caf50;
+				color: white;
+				padding: 10px 15px;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			button:hover {
+				background-color: #45a049;
+			}
+			.status {
+				margin-top: 15px;
+				padding: 10px;
+				border-radius: 4px;
+				display: none;
+			}
+			.success {
+				background-color: #d4edda;
+				color: #155724;
+				border: 1px solid #c3e6cb;
+			}
+			.error {
+				background-color: #f8d7da;
+				color: #721c24;
+				border: 1px solid #f5c6cb;
+			}
+			.debug-info {
+				margin-top: 20px;
+				padding: 10px;
+				background-color: #f8f9fa;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+			}
+			.debug-info pre {
+				white-space: pre-wrap;
+				word-wrap: break-word;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>EmailJS Test</h1>
+			<p>
+				This page tests your EmailJS configuration to help diagnose issues.
+			</p>
+
+			<div class="form-group">
+				<label for="service-id">Service ID:</label>
+				<input type="text" id="service-id" value="yong_mail" />
+			</div>
+
+			<div class="form-group">
+				<label for="template-id">Template ID:</label>
+				<input type="text" id="template-id" value="template_pearheq" />
+			</div>
+
+			<div class="form-group">
+				<label for="name">Name:</label>
+				<input type="text" id="name" value="Test User" />
+			</div>
+
+			<div class="form-group">
+				<label for="email">Email:</label>
+				<input type="email" id="email" value="test@example.com" />
+			</div>
+
+			<div class="form-group">
+				<label for="message">Message:</label>
+				<textarea id="message" rows="4">
+This is a test message from the EmailJS test page.</textarea
+				>
+			</div>
+
+			<button id="send-button">Send Test Email</button>
+
+			<div id="status" class="status"></div>
+
+			<div class="debug-info">
+				<h3>Debug Information:</h3>
+				<div id="debug-output"></div>
+			</div>
+		</div>
+
+		<script>
+			(function () {
+				try {
+					// Initialize EmailJS with your public key
+					emailjs.init("EYQS8cgo8Vb9c4Uow");
+					logDebug("EmailJS initialized with public key");
+				} catch (error) {
+					logDebug("Failed to initialize EmailJS: " + error.message);
+				}
+
+				// Add event listener to the send button
+				document
+					.getElementById("send-button")
+					.addEventListener("click", sendTestEmail);
+
+				function sendTestEmail() {
+					const serviceId = document.getElementById("service-id").value;
+					const templateId = document.getElementById("template-id").value;
+					const name = document.getElementById("name").value;
+					const email = document.getElementById("email").value;
+					const message = document.getElementById("message").value;
+
+					// Validate inputs
+					if (!serviceId || !templateId || !name || !email || !message) {
+						showStatus("Please fill in all fields", "error");
+						return;
+					}
+
+					// Prepare template parameters
+					const templateParams = {
+						from_name: name,
+						from_email: email,
+						message: message,
+						to_email: "yna08@terpmail.umd.edu",
+					};
+
+					// Log the parameters for debugging
+					logDebug(
+						"Sending email with parameters: " +
+							JSON.stringify(
+								{
+									serviceId: serviceId,
+									templateId: templateId,
+									templateParams: templateParams,
+								},
+								null,
+								2
+							)
+					);
+
+					// Disable button and show loading state
+					const button = document.getElementById("send-button");
+					const originalText = button.textContent;
+					button.disabled = true;
+					button.textContent = "Sending...";
+
+					// Send email using EmailJS
+					emailjs
+						.send(serviceId, templateId, templateParams)
+						.then(function (response) {
+							logDebug(
+								"Email sent successfully! Response: " +
+									JSON.stringify(response, null, 2)
+							);
+							showStatus(
+								"Email sent successfully! Check your inbox.",
+								"success"
+							);
+						})
+						.catch(function (error) {
+							logDebug(
+								"Email failed to send. Error: " +
+									JSON.stringify(error, null, 2)
+							);
+
+							let errorMessage = "Failed to send email. ";
+
+							if (error.status === 400) {
+								errorMessage +=
+									"Invalid service ID or template ID. Please check your EmailJS configuration.";
+							} else if (error.status === 401) {
+								errorMessage +=
+									"Authentication error. Please check your EmailJS public key.";
+							} else if (
+								error.status === 403 ||
+								(error.text && error.text.includes("quota"))
+							) {
+								errorMessage +=
+									"You may have reached your free tier limit (200 emails/month). Please check your EmailJS account.";
+							} else if (error.status === 429) {
+								errorMessage +=
+									"Too many requests. Please try again later.";
+							} else {
+								errorMessage +=
+									"Please check the console for more details.";
+							}
+
+							showStatus(errorMessage, "error");
+						})
+						.finally(function () {
+							// Reset button
+							button.disabled = false;
+							button.textContent = originalText;
+						});
+				}
+
+				function showStatus(message, type) {
+					const statusElement = document.getElementById("status");
+					statusElement.textContent = message;
+					statusElement.className = "status " + type;
+					statusElement.style.display = "block";
+				}
+
+				function logDebug(message) {
+					const debugOutput = document.getElementById("debug-output");
+					const timestamp = new Date().toLocaleTimeString();
+					const logEntry = document.createElement("pre");
+					logEntry.textContent = `[${timestamp}] ${message}`;
+					debugOutput.appendChild(logEntry);
+					console.log(message);
+				}
+			})();
+		</script>
+	</body>
+</html>

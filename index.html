@@ -5,6 +5,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Yong Hun Na - Software Engineer</title>
 		<link rel="stylesheet" href="style.css" />
+		<script
+			type="text/javascript"
+			src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+		></script>
 	</head>
 	<body>
 		<div class="container">
@@ -663,7 +667,7 @@
 					</h2>
 					<div class="contact-container">
 						<div class="contact-form">
-							<form>
+							<form id="contact-form">
 								<div class="form-group">
 									<label for="name">Name</label>
 									<input
@@ -711,6 +715,16 @@
 									</svg>
 								</button>
 							</form>
+							<div id="form-status" class="form-status"></div>
+							<div class="fallback-contact">
+								<p>
+									If the form doesn't work, you can email me directly
+									at:
+									<a href="mailto:yna08@terpmail.umd.edu">
+										yna08@terpmail.umd.edu
+									</a>
+								</p>
+							</div>
 						</div>
 						<div class="contact-info">
 							<p>
