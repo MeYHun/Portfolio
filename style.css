@@ -183,6 +183,8 @@ html {
 		transform: translateY(0);
 		opacity: 1;
 		visibility: visible;
+		background-color: var(--container-bg);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 	}
 
 	.right-column {
@@ -1214,6 +1216,8 @@ nav ul li.dropdown .dropbtn.active::before {
 		transform: translateY(0);
 		opacity: 1;
 		visibility: visible;
+		background-color: var(--container-bg);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 	}
 
 	.right-column {
@@ -1353,6 +1357,21 @@ nav ul li.dropdown .dropbtn.active::before {
 	#contact {
 		padding: 2rem;
 		height: auto;
+	}
+
+	.skill-category {
+		padding: 1rem;
+		width: 100%;
+		box-sizing: border-box;
+		background-color: var(--container-bg);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+	}
+
+	.dark-mode .skill-category {
+		background-color: rgba(42, 42, 42, 0.95);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 	}
 }
 
@@ -2237,14 +2256,12 @@ nav ul li.dropdown .dropbtn.active::before {
 }
 
 .skill-category {
+	padding: 1rem;
+	width: 100%;
+	box-sizing: border-box;
 	background-color: var(--container-bg);
-	padding: 1.5rem;
-	border-radius: 12px;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-	transition: all 0.3s ease;
-	position: relative;
-	overflow: hidden;
-	border-left: 4px solid var(--highlight-color);
+	border-left: 5px solid var(--highlight-color);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
 .skill-category:hover {
@@ -2493,6 +2510,21 @@ nav ul li.dropdown .dropbtn.active::before {
 	}
 }
 
+/* Enhanced visibility for skill categories in mobile view */
+@media (max-width: 768px) {
+	.skill-category {
+		background-color: var(--container-bg);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+	}
+
+	.dark-mode .skill-category {
+		background-color: rgba(42, 42, 42, 0.95);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+	}
+}
+
 @media (max-width: 768px) {
 	.contact-container {
 		flex-direction: column;
@@ -2724,6 +2756,8 @@ nav ul li.dropdown .dropbtn.active::before {
 		transform: translateY(0);
 		opacity: 1;
 		visibility: visible;
+		background-color: var(--container-bg);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 	}
 
 	.right-column {
@@ -2885,7 +2919,16 @@ nav ul li.dropdown .dropbtn.active::before {
 @media (max-width: 768px) {
 	.dark-mode .left-column {
 		background-color: var(--dark-container-bg);
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+	}
+
+	.dark-mode .left-column.mobile-visible {
+		background-color: rgba(
+			42,
+			42,
+			42,
+			0.98
+		); /* Almost opaque dark background */
 	}
 }
 
@@ -3096,6 +3139,15 @@ nav ul li.dropdown .dropbtn.active::before {
 		padding: 1rem;
 		width: 100%;
 		box-sizing: border-box;
+		background-color: var(--container-bg);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+	}
+
+	.dark-mode .skill-category {
+		background-color: rgba(42, 42, 42, 0.95);
+		border-left: 5px solid var(--highlight-color);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 	}
 
 	.skills {
