@@ -1,3 +1,106 @@
+// Add this at the beginning of the file
+// Custom prompt function that works in iframes
+function customPrompt(message, defaultValue, callback) {
+	// Check if we're in an iframe
+	const isInIframe = window !== window.parent;
+
+	// If not in iframe or prompt is available, try using native prompt
+	if (!isInIframe) {
+		try {
+			const result = prompt(message, defaultValue);
+			callback(result);
+			return;
+		} catch (e) {
+			console.log("Native prompt failed, using custom prompt");
+			// Fall through to custom implementation
+		}
+	}
+
+	// Create custom modal for iframe environment
+	const modal = document.createElement("div");
+	modal.style.position = "fixed";
+	modal.style.top = "0";
+	modal.style.left = "0";
+	modal.style.width = "100%";
+	modal.style.height = "100%";
+	modal.style.backgroundColor = "rgba(0,0,0,0.7)";
+	modal.style.zIndex = "10000";
+	modal.style.display = "flex";
+	modal.style.justifyContent = "center";
+	modal.style.alignItems = "center";
+
+	const dialog = document.createElement("div");
+	dialog.style.backgroundColor = "var(--container-bg, white)";
+	dialog.style.color = "var(--text-color, black)";
+	dialog.style.padding = "20px";
+	dialog.style.borderRadius = "8px";
+	dialog.style.width = "300px";
+	dialog.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)";
+
+	const messageEl = document.createElement("p");
+	messageEl.textContent = message;
+	messageEl.style.marginBottom = "15px";
+
+	const input = document.createElement("input");
+	input.type = "text";
+	input.value = defaultValue || "";
+	input.style.width = "100%";
+	input.style.padding = "8px";
+	input.style.marginBottom = "15px";
+	input.style.borderRadius = "4px";
+	input.style.border = "1px solid #ccc";
+
+	const buttonContainer = document.createElement("div");
+	buttonContainer.style.display = "flex";
+	buttonContainer.style.justifyContent = "flex-end";
+	buttonContainer.style.gap = "10px";
+
+	const cancelButton = document.createElement("button");
+	cancelButton.textContent = "Cancel";
+	cancelButton.style.padding = "8px 15px";
+	cancelButton.style.borderRadius = "4px";
+	cancelButton.style.border = "none";
+	cancelButton.style.backgroundColor = "#f0f0f0";
+	cancelButton.style.cursor = "pointer";
+
+	const okButton = document.createElement("button");
+	okButton.textContent = "OK";
+	okButton.style.padding = "8px 15px";
+	okButton.style.borderRadius = "4px";
+	okButton.style.border = "none";
+	okButton.style.backgroundColor = "var(--highlight-color, #5eb5da)";
+	okButton.style.color = "white";
+	okButton.style.cursor = "pointer";
+
+	cancelButton.onclick = function () {
+		document.body.removeChild(modal);
+		callback(null);
+	};
+
+	okButton.onclick = function () {
+		document.body.removeChild(modal);
+		callback(input.value);
+	};
+
+	// Handle Enter key
+	input.addEventListener("keyup", function (event) {
+		if (event.key === "Enter") {
+			okButton.click();
+		}
+	});
+
+	buttonContainer.appendChild(cancelButton);
+	buttonContainer.appendChild(okButton);
+
+	dialog.appendChild(messageEl);
+	dialog.appendChild(input);
+	dialog.appendChild(buttonContainer);
+	modal.appendChild(dialog);
+
+	document.body.appendChild(modal);
+	input.focus();
+}
+
 const tabs = document.querySelectorAll("nav ul li a");
 const tabContents = document.querySelectorAll(".tab-content");
 const darkModeToggle = document.querySelector(".dark-mode-toggle");
@@ -511,135 +614,232 @@ const ctx = canvas.getContext("2d");
 //     }
 // });
 
-function visualizeInsertionSort() {
-	clearSteps();
+// Custom prompt function that works in iframes
+function customPrompt(message, defaultValue, callback) {
+	// Check if we're in an iframe
+	const isInIframe = window !== window.parent;
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Insertion Sort (5-20):", "15")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
-
-	// Validate input and use default if invalid
-	const validatedNumElements =
-		numElements && numElements >= 5 && numElements <= 20 ? numElements : 15;
-
-	const array = generateRandomArray(validatedNumElements, 10, 100);
-	drawArray(array);
-	addStep(
-		`Starting Insertion Sort with ${validatedNumElements} elements: ${array.join(
-			", "
-		)}`
-	);
-
-	let i = 1;
-
-	function insertionSortStep() {
-		if (i < array.length) {
-			const key = array[i];
-			let j = i - 1;
-
-			addStep(`Inserting ${key} into the sorted portion`);
-
-			function moveElement() {
-				if (j >= 0 && array[j] > key) {
-					array[j + 1] = array[j];
-					drawArray(array, j, j + 1);
-					addStep(`Moving ${array[j]} to position ${j + 1}`);
-					j--;
-					trackableSetTimeout(moveElement, 250);
-				} else {
-					array[j + 1] = key;
-					drawArray(array, j + 1);
-					addStep(`Placed ${key} at position ${j + 1}`, "current-step");
-					i++;
-					trackableSetTimeout(insertionSortStep, 250);
-				}
-			}
-
-			moveElement();
-		} else {
-			addStep("Insertion Sort Complete!", "path-node");
-			drawArray(array);
-			algorithmComplete(); // Reset flag when complete
+	// If not in iframe or prompt is available, try using native prompt
+	if (!isInIframe) {
+		try {
+			const result = prompt(message, defaultValue);
+			callback(result);
+			return;
+		} catch (e) {
+			console.log("Native prompt failed, using custom prompt");
+			// Fall through to custom implementation
 		}
 	}
 
-	trackableSetTimeout(insertionSortStep, 250); // Faster animation (was 500)
+	// Create custom modal for iframe environment
+	const modal = document.createElement("div");
+	modal.style.position = "fixed";
+	modal.style.top = "0";
+	modal.style.left = "0";
+	modal.style.width = "100%";
+	modal.style.height = "100%";
+	modal.style.backgroundColor = "rgba(0,0,0,0.7)";
+	modal.style.zIndex = "10000";
+	modal.style.display = "flex";
+	modal.style.justifyContent = "center";
+	modal.style.alignItems = "center";
+
+	const dialog = document.createElement("div");
+	dialog.style.backgroundColor = "var(--container-bg, white)";
+	dialog.style.color = "var(--text-color, black)";
+	dialog.style.padding = "20px";
+	dialog.style.borderRadius = "8px";
+	dialog.style.width = "300px";
+	dialog.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)";
+
+	const messageEl = document.createElement("p");
+	messageEl.textContent = message;
+	messageEl.style.marginBottom = "15px";
+
+	const input = document.createElement("input");
+	input.type = "text";
+	input.value = defaultValue || "";
+	input.style.width = "100%";
+	input.style.padding = "8px";
+	input.style.marginBottom = "15px";
+	input.style.borderRadius = "4px";
+	input.style.border = "1px solid #ccc";
+
+	const buttonContainer = document.createElement("div");
+	buttonContainer.style.display = "flex";
+	buttonContainer.style.justifyContent = "flex-end";
+	buttonContainer.style.gap = "10px";
+
+	const cancelButton = document.createElement("button");
+	cancelButton.textContent = "Cancel";
+	cancelButton.style.padding = "8px 15px";
+	cancelButton.style.borderRadius = "4px";
+	cancelButton.style.border = "none";
+	cancelButton.style.backgroundColor = "#f0f0f0";
+	cancelButton.style.cursor = "pointer";
+
+	const okButton = document.createElement("button");
+	okButton.textContent = "OK";
+	okButton.style.padding = "8px 15px";
+	okButton.style.borderRadius = "4px";
+	okButton.style.border = "none";
+	okButton.style.backgroundColor = "var(--highlight-color, #5eb5da)";
+	okButton.style.color = "white";
+	okButton.style.cursor = "pointer";
+
+	cancelButton.onclick = function () {
+		document.body.removeChild(modal);
+		callback(null);
+	};
+
+	okButton.onclick = function () {
+		document.body.removeChild(modal);
+		callback(input.value);
+	};
+
+	// Handle Enter key
+	input.addEventListener("keyup", function (event) {
+		if (event.key === "Enter") {
+			okButton.click();
+		}
+	});
+
+	buttonContainer.appendChild(cancelButton);
+	buttonContainer.appendChild(okButton);
+
+	dialog.appendChild(messageEl);
+	dialog.appendChild(input);
+	dialog.appendChild(buttonContainer);
+	modal.appendChild(dialog);
+
+	document.body.appendChild(modal);
+	input.focus();
+}
+
+// Replace prompt calls with customPrompt
+// For Insertion Sort
+function runInsertionSort() {
+	// ... existing code ...
+
+	// Replace this:
+	// const numElements = parseInt(
+	//   prompt("Enter number of elements for Insertion Sort (5-20):", "15")
+	// );
+
+	// With this:
+	customPrompt(
+		"Enter number of elements for Insertion Sort (5-20):",
+		"15",
+		function (result) {
+			const numElements = parseInt(result || "15");
+			// Continue with the rest of your insertion sort code here
+			// Move the rest of the function body inside this callback
+
+			// Generate random array
+			const array = [];
+			for (let i = 0; i < numElements; i++) {
+				array.push(Math.floor(Math.random() * 100) + 1);
+			}
+
+			// Run the algorithm and get steps
+			const steps = insertionSortWithSteps(array);
+
+			// Visualize the algorithm
+			visualizeAlgorithm(steps);
+		}
+	);
 }
 
 function visualizeBinarySearch() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Binary Search (5-20):", "15")
-	);
+	// Replace native prompt with customPrompt
+	customPrompt(
+		"Enter number of elements for Binary Search (5-20):",
+		"15",
+		function (result) {
+			const numElements = parseInt(result || "15");
 
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
-
-	// Validate input and use default if invalid
-	const validatedNumElements =
-		numElements && numElements >= 5 && numElements <= 20 ? numElements : 15;
-
-	const array = Array.from(
-		{ length: validatedNumElements },
-		(_, i) => i * 5 + 5
-	).sort((a, b) => a - b);
-	const target = array[Math.floor(Math.random() * array.length)];
-
-	drawSortedArray(array);
-	addStep(
-		`Starting Binary Search for value ${target} in sorted array with ${validatedNumElements} elements`
-	);
-	addStep(`Array: ${array.join(", ")}`);
-
-	let left = 0;
-	let right = array.length - 1;
-
-	function binarySearchStep() {
-		if (left <= right) {
-			const mid = Math.floor((left + right) / 2);
-			drawSortedArrayWithPointers(array, left, mid, right);
-
-			addStep(
-				`Checking middle element at index ${mid}: ${array[mid]}`,
-				"visited-node"
-			);
-
-			if (array[mid] === target) {
-				addStep(`Found ${target} at index ${mid}!`, "path-node");
-				drawSortedArrayWithTarget(array, mid);
+			// Check if user clicked Cancel
+			if (numElements === null || isNaN(numElements)) {
+				addStep("Visualization canceled", "current-step");
+				algorithmComplete(); // Reset flag if canceled
 				return;
 			}
 
-			if (array[mid] < target) {
-				addStep(`${array[mid]} < ${target}, searching right half`);
-				left = mid + 1;
-			} else {
-				addStep(`${array[mid]} > ${target}, searching left half`);
-				right = mid - 1;
+			// Validate input and use default if invalid
+			const validatedNumElements =
+				numElements && numElements >= 5 && numElements <= 20
+					? numElements
+					: 15;
+
+			// Create a sorted array for binary search
+			const array = [];
+			for (let i = 0; i < validatedNumElements; i++) {
+				array.push(Math.floor(Math.random() * 100) + 1);
+			}
+			array.sort((a, b) => a - b); // Sort the array
+			drawArray(array);
+
+			// Choose a random target from the array
+			const targetIndex = Math.floor(Math.random() * array.length);
+			const target = array[targetIndex];
+
+			addStep(
+				`Starting Binary Search for target ${target} in array: ${array.join(
+					", "
+				)}`
+			);
+
+			let left = 0;
+			let right = array.length - 1;
+			let found = false;
+
+			function binarySearchStep() {
+				if (left <= right && !found) {
+					const mid = Math.floor((left + right) / 2);
+					drawSortedArrayWithPointers(array, left, mid, right);
+
+					addStep(
+						`Checking middle element at index ${mid}: ${array[mid]}`,
+						"current-step"
+					);
+
+					if (array[mid] === target) {
+						addStep(
+							`Found target ${target} at index ${mid}!`,
+							"path-node"
+						);
+						drawSortedArrayWithTarget(array, mid);
+						found = true;
+						algorithmComplete(); // Reset flag when complete
+					} else if (array[mid] < target) {
+						addStep(
+							`${array[mid]} < ${target}, search in right half`,
+							"visited-node"
+						);
+						left = mid + 1;
+						trackableSetTimeout(binarySearchStep, 500);
+					} else {
+						addStep(
+							`${array[mid]} > ${target}, search in left half`,
+							"visited-node"
+						);
+						right = mid - 1;
+						trackableSetTimeout(binarySearchStep, 500);
+					}
+				} else if (!found) {
+					addStep(
+						`Target ${target} not found in the array`,
+						"current-step"
+					);
+					algorithmComplete(); // Reset flag when complete
+				}
 			}
 
-			trackableSetTimeout(binarySearchStep, 500); // Faster animation (was 1000)
-		} else {
-			addStep(`${target} not found in the array`, "current-step");
-			algorithmComplete(); // Reset flag when complete
+			trackableSetTimeout(binarySearchStep, 500);
 		}
-	}
-
-	trackableSetTimeout(binarySearchStep, 500); // Faster animation (was 1000)
+	);
 }
 
 function visualizeBreadthFirstSearch() {
@@ -820,338 +1020,374 @@ function visualizeBreadthFirstSearch() {
 function visualizeMergeSort() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Merge Sort (5-15):", "12")
-	);
+	// Replace native prompt with customPrompt
+	customPrompt(
+		"Enter number of elements for Merge Sort (5-15):",
+		"12",
+		function (result) {
+			const numElements = parseInt(result || "12");
 
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
-
-	// Validate input and use default if invalid
-	const validatedNumElements =
-		numElements && numElements >= 5 && numElements <= 15 ? numElements : 12;
-
-	// Generate random array
-	const array = generateRandomArray(validatedNumElements, 10, 100);
-
-	// Draw initial array
-	drawArray(array);
-
-	// Add initial step
-	addStep(
-		`Starting Merge Sort with ${validatedNumElements} elements: ${array.join(
-			", "
-		)}`
-	);
-
-	// Start merge sort
-	mergeSort(array, 0, array.length - 1);
-
-	// Merge sort implementation
-	async function mergeSort(arr, left, right) {
-		if (left >= right) return;
-
-		const mid = Math.floor((left + right) / 2);
-
-		// Add step for division
-		addStep(
-			`Dividing array at index ${mid}: [${arr
-				.slice(left, mid + 1)
-				.join(", ")}] and [${arr.slice(mid + 1, right + 1).join(", ")}]`
-		);
-
-		// Recursively sort left and right halves
-		await mergeSort(arr, left, mid);
-		await mergeSort(arr, mid + 1, right);
-
-		// Merge the sorted halves
-		await merge(arr, left, mid, right);
-	}
-
-	// Merge function
-	async function merge(arr, left, mid, right) {
-		addStep(
-			`Merging subarrays: [${arr.slice(left, mid + 1).join(", ")}] and [${arr
-				.slice(mid + 1, right + 1)
-				.join(", ")}]`,
-			"visited-node"
-		);
-
-		// Create temporary arrays
-		const leftArray = arr.slice(left, mid + 1);
-		const rightArray = arr.slice(mid + 1, right + 1);
-
-		let i = 0,
-			j = 0,
-			k = left;
-
-		// Merge the arrays back into arr[left...right]
-		while (i < leftArray.length && j < rightArray.length) {
-			if (leftArray[i] <= rightArray[j]) {
-				arr[k] = leftArray[i];
-				addStep(`Placing ${leftArray[i]} from left array at position ${k}`);
-				i++;
-			} else {
-				arr[k] = rightArray[j];
-				addStep(
-					`Placing ${rightArray[j]} from right array at position ${k}`
-				);
-				j++;
+			// Check if user clicked Cancel
+			if (numElements === null || isNaN(numElements)) {
+				addStep("Visualization canceled", "current-step");
+				algorithmComplete(); // Reset flag if canceled
+				return;
 			}
 
-			// Update visualization
-			drawArray(arr, k);
+			// Validate input and use default if invalid
+			const validatedNumElements =
+				numElements && numElements >= 5 && numElements <= 15
+					? numElements
+					: 12;
 
-			// Wait for animation
-			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
-			k++;
-		}
-
-		// Copy remaining elements from left array
-		while (i < leftArray.length) {
-			arr[k] = leftArray[i];
+			const array = generateRandomArray(validatedNumElements, 10, 100);
+			drawArray(array);
 			addStep(
-				`Copying remaining ${leftArray[i]} from left array to position ${k}`
+				`Starting Merge Sort with ${validatedNumElements} elements: ${array.join(
+					", "
+				)}`
 			);
-			drawArray(arr, k);
-			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
-			i++;
-			k++;
-		}
 
-		// Copy remaining elements from right array
-		while (j < rightArray.length) {
-			arr[k] = rightArray[j];
-			addStep(
-				`Copying remaining ${rightArray[j]} from right array to position ${k}`
-			);
-			drawArray(arr, k);
-			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
-			j++;
-			k++;
-		}
+			// Start merge sort
+			mergeSort(array, 0, array.length - 1);
 
-		// Show the merged subarray
-		addStep(
-			`Merged subarray: [${arr.slice(left, right + 1).join(", ")}]`,
-			"current-step"
-		);
+			// Merge sort implementation
+			async function mergeSort(arr, left, right) {
+				if (left >= right) return;
 
-		// If we've sorted the entire array, mark as complete
-		if (left === 0 && right === arr.length - 1) {
-			addStep("Merge Sort Complete!", "path-node");
-			drawArray(arr);
-			algorithmComplete(); // Reset flag when complete
+				const mid = Math.floor((left + right) / 2);
+
+				// Add step for division
+				addStep(
+					`Dividing array at index ${mid}: [${arr
+						.slice(left, mid + 1)
+						.join(", ")}] and [${arr
+						.slice(mid + 1, right + 1)
+						.join(", ")}]`
+				);
+
+				// Recursively sort left and right halves
+				await mergeSort(arr, left, mid);
+				await mergeSort(arr, mid + 1, right);
+
+				// Merge the sorted halves
+				await merge(arr, left, mid, right);
+			}
+
+			// Merge function
+			async function merge(arr, left, mid, right) {
+				addStep(
+					`Merging subarrays: [${arr
+						.slice(left, mid + 1)
+						.join(", ")}] and [${arr
+						.slice(mid + 1, right + 1)
+						.join(", ")}]`,
+					"visited-node"
+				);
+
+				// Create temporary arrays
+				const leftArray = arr.slice(left, mid + 1);
+				const rightArray = arr.slice(mid + 1, right + 1);
+
+				let i = 0,
+					j = 0,
+					k = left;
+
+				// Merge the arrays back into arr[left...right]
+				while (i < leftArray.length && j < rightArray.length) {
+					if (leftArray[i] <= rightArray[j]) {
+						arr[k] = leftArray[i];
+						addStep(
+							`Placing ${leftArray[i]} from left array at position ${k}`
+						);
+						i++;
+					} else {
+						arr[k] = rightArray[j];
+						addStep(
+							`Placing ${rightArray[j]} from right array at position ${k}`
+						);
+						j++;
+					}
+
+					// Update visualization
+					drawArray(arr, k);
+
+					// Wait for animation
+					await new Promise((resolve) =>
+						trackableSetTimeout(resolve, 250)
+					); // Faster animation (was 500)
+					k++;
+				}
+
+				// Copy remaining elements from left array
+				while (i < leftArray.length) {
+					arr[k] = leftArray[i];
+					addStep(
+						`Copying remaining ${leftArray[i]} from left array to position ${k}`
+					);
+					drawArray(arr, k);
+					await new Promise((resolve) =>
+						trackableSetTimeout(resolve, 250)
+					); // Faster animation (was 500)
+					i++;
+					k++;
+				}
+
+				// Copy remaining elements from right array
+				while (j < rightArray.length) {
+					arr[k] = rightArray[j];
+					addStep(
+						`Copying remaining ${rightArray[j]} from right array to position ${k}`
+					);
+					drawArray(arr, k);
+					await new Promise((resolve) =>
+						trackableSetTimeout(resolve, 250)
+					); // Faster animation (was 500)
+					j++;
+					k++;
+				}
+
+				// Show the merged subarray
+				addStep(
+					`Merged subarray: [${arr.slice(left, right + 1).join(", ")}]`,
+					"current-step"
+				);
+
+				// If we've sorted the entire array, mark as complete
+				if (left === 0 && right === arr.length - 1) {
+					addStep("Merge Sort Complete!", "path-node");
+					drawArray(arr);
+					algorithmComplete(); // Reset flag when complete
+				}
+			}
 		}
-	}
+	);
 }
 
 function visualizeQuickSort() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Quick Sort (5-15):", "12")
-	);
+	// Replace native prompt with customPrompt
+	customPrompt(
+		"Enter number of elements for Quick Sort (5-15):",
+		"12",
+		function (result) {
+			const numElements = parseInt(result || "12");
 
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+			// Check if user clicked Cancel
+			if (numElements === null || isNaN(numElements)) {
+				addStep("Visualization canceled", "current-step");
+				algorithmComplete(); // Reset flag if canceled
+				return;
+			}
 
-	// Validate input and use default if invalid
-	const validatedNumElements =
-		numElements && numElements >= 5 && numElements <= 15 ? numElements : 12;
+			// Validate input and use default if invalid
+			const validatedNumElements =
+				numElements && numElements >= 5 && numElements <= 15
+					? numElements
+					: 12;
 
-	// Generate random array
-	const array = generateRandomArray(validatedNumElements, 10, 100);
+			const array = generateRandomArray(validatedNumElements, 10, 100);
+			drawArray(array);
+			addStep(
+				`Starting Quick Sort with ${validatedNumElements} elements: ${array.join(
+					", "
+				)}`
+			);
 
-	// Draw initial array
-	drawArray(array);
+			// Start quick sort
+			quickSort(array, 0, array.length - 1);
 
-	// Add initial step
-	addStep(
-		`Starting Quick Sort with ${validatedNumElements} elements: ${array.join(
-			", "
-		)}`
-	);
+			// Quick sort implementation
+			async function quickSort(arr, left, right) {
+				if (left >= right) return;
 
-	// Start quick sort
-	quickSort(array, 0, array.length - 1);
+				// Partition the array and get pivot index
+				const pivotIndex = await partition(arr, left, right);
 
-	// Quick sort implementation
-	async function quickSort(arr, left, right) {
-		if (left >= right) return;
+				// Recursively sort the sub-arrays
+				await quickSort(arr, left, pivotIndex - 1);
+				await quickSort(arr, pivotIndex + 1, right);
 
-		// Partition the array and get pivot index
-		const pivotIndex = await partition(arr, left, right);
+				// If we've sorted the entire array, mark as complete
+				if (left === 0 && right === arr.length - 1) {
+					addStep("Quick Sort Complete!", "path-node");
+					drawArray(arr);
+					algorithmComplete(); // Reset flag when complete
+				}
+			}
 
-		// Recursively sort the sub-arrays
-		await quickSort(arr, left, pivotIndex - 1);
-		await quickSort(arr, pivotIndex + 1, right);
+			// Partition function
+			async function partition(arr, left, right) {
+				// Choose rightmost element as pivot
+				const pivot = arr[right];
+				addStep(
+					`Selected pivot: ${pivot} at index ${right}`,
+					"current-step"
+				);
 
-		// If we've sorted the entire array, mark as complete
-		if (left === 0 && right === arr.length - 1) {
-			addStep("Quick Sort Complete!", "path-node");
-			drawArray(arr);
-			algorithmComplete(); // Reset flag when complete
-		}
-	}
+				// Draw array with pivot highlighted
+				drawArray(arr, right);
+				await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
 
-	// Partition function
-	async function partition(arr, left, right) {
-		// Choose rightmost element as pivot
-		const pivot = arr[right];
-		addStep(`Selected pivot: ${pivot} at index ${right}`, "current-step");
+				// Index of smaller element
+				let i = left - 1;
 
-		// Draw array with pivot highlighted
-		drawArray(arr, right);
-		await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
+				// Process each element except the pivot
+				for (let j = left; j < right; j++) {
+					// If current element is smaller than the pivot
+					if (arr[j] < pivot) {
+						// Increment index of smaller element
+						i++;
 
-		// Index of smaller element
-		let i = left - 1;
+						// Swap elements
+						if (i !== j) {
+							addStep(
+								`Swapping ${arr[i]} and ${arr[j]} (smaller than pivot ${pivot})`,
+								"visited-node"
+							);
+							[arr[i], arr[j]] = [arr[j], arr[i]];
+							drawArray(arr, right, i, j);
+							await new Promise((resolve) =>
+								trackableSetTimeout(resolve, 250)
+							); // Faster animation (was 500)
+						}
+					} else {
+						addStep(`${arr[j]} >= pivot ${pivot}, no swap needed`);
+						drawArray(arr, right, j);
+						await new Promise((resolve) =>
+							trackableSetTimeout(resolve, 150)
+						); // Faster animation (was 300)
+					}
+				}
 
-		// Process each element except the pivot
-		for (let j = left; j < right; j++) {
-			// If current element is smaller than the pivot
-			if (arr[j] < pivot) {
-				// Increment index of smaller element
-				i++;
-
-				// Swap elements
-				if (i !== j) {
+				// Swap the pivot element with the element at (i+1)
+				if (i + 1 !== right) {
 					addStep(
-						`Swapping ${arr[i]} and ${arr[j]} (smaller than pivot ${pivot})`,
-						"visited-node"
+						`Placing pivot ${pivot} at its correct position (index ${
+							i + 1
+						})`,
+						"current-step"
 					);
-					[arr[i], arr[j]] = [arr[j], arr[i]];
-					drawArray(arr, right, i, j);
+					[arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+					drawArray(arr, i + 1);
 					await new Promise((resolve) =>
 						trackableSetTimeout(resolve, 250)
 					); // Faster animation (was 500)
 				}
-			} else {
-				addStep(`${arr[j]} >= pivot ${pivot}, no swap needed`);
-				drawArray(arr, right, j);
-				await new Promise((resolve) => trackableSetTimeout(resolve, 150)); // Faster animation (was 300)
+
+				// Return the position of the pivot
+				return i + 1;
 			}
 		}
-
-		// Swap the pivot element with the element at (i+1)
-		if (i + 1 !== right) {
-			addStep(
-				`Placing pivot ${pivot} at its correct position (index ${i + 1})`,
-				"current-step"
-			);
-			[arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
-			drawArray(arr, i + 1);
-			await new Promise((resolve) => trackableSetTimeout(resolve, 250)); // Faster animation (was 500)
-		}
-
-		// Return the position of the pivot
-		return i + 1;
-	}
+	);
 }
 
 function visualizeGreedyAlgorithm() {
 	clearSteps();
 
-	// Prompt for target amount
-	const inputAmount = parseFloat(
-		prompt("Enter target amount for Coin Change (1-100):", "47.65")
-	);
+	// Replace native prompt with customPrompt
+	customPrompt(
+		"Enter target amount for Coin Change (1-100):",
+		"47.65",
+		function (result) {
+			const targetAmount = parseFloat(result || "47.65");
 
-	// Check if user clicked Cancel
-	if (inputAmount === null || isNaN(inputAmount)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+			// Check if user clicked Cancel
+			if (targetAmount === null || isNaN(targetAmount)) {
+				addStep("Visualization canceled", "current-step");
+				algorithmComplete(); // Reset flag if canceled
+				return;
+			}
 
-	// Validate input and use default if invalid
-	const targetAmount =
-		inputAmount && inputAmount > 0 && inputAmount <= 100
-			? parseFloat(inputAmount.toFixed(2))
-			: 47.65;
+			// Validate input and use default if invalid
+			const validatedAmount =
+				targetAmount && targetAmount > 0 && targetAmount <= 100
+					? targetAmount
+					: 47.65;
 
-	// Set up coin change problem
-	const coins = [25, 10, 5, 1, 0.25, 0.1, 0.05, 0.01];
-	const coinNames = {
-		25: "Quarter ($0.25)",
-		10: "Dime ($0.10)",
-		5: "Nickel ($0.05)",
-		1: "Penny ($0.01)",
-		0.25: "Quarter ($0.25)",
-		0.1: "Dime ($0.10)",
-		0.05: "Nickel ($0.05)",
-		0.01: "Penny ($0.01)",
-	};
+			// Set up coin change problem
+			const coins = [25, 10, 5, 1, 0.25, 0.1, 0.05, 0.01];
+			const coinNames = {
+				25: "Quarter ($0.25)",
+				10: "Dime ($0.10)",
+				5: "Nickel ($0.05)",
+				1: "Penny ($0.01)",
+				0.25: "Quarter ($0.25)",
+				0.1: "Dime ($0.10)",
+				0.05: "Nickel ($0.05)",
+				0.01: "Penny ($0.01)",
+			};
 
-	let remainingAmount = targetAmount;
-	const selectedCoins = [];
+			let remainingAmount = validatedAmount;
+			const selectedCoins = [];
 
-	// Add initial step
-	addStep(
-		`Starting Greedy Coin Change for amount: $${targetAmount.toFixed(2)}`,
-		"current-step"
-	);
-	addStep(
-		`Available coins: ${coins.map((c) => `$${c.toFixed(2)}`).join(", ")}`
-	);
+			// Add initial step
+			addStep(
+				`Starting Greedy Coin Change for amount: $${validatedAmount.toFixed(
+					2
+				)}`,
+				"current-step"
+			);
+			addStep(
+				`Available coins: ${coins
+					.map((c) => `$${c.toFixed(2)}`)
+					.join(", ")}`
+			);
 
-	// Draw initial state
-	drawCoinChangeState(coins, selectedCoins, remainingAmount);
+			// Draw initial state
+			drawCoinChangeState(coins, selectedCoins, remainingAmount);
 
-	// Start greedy algorithm
-	trackableSetTimeout(() => greedyCoinChange(coins, targetAmount), 500); // Faster animation (was 1000)
+			// Start greedy algorithm
+			trackableSetTimeout(
+				() => greedyCoinChange(coins, validatedAmount),
+				500
+			); // Faster animation (was 1000)
 
-	// Greedy coin change algorithm
-	async function greedyCoinChange(coins, amount) {
-		let remaining = amount;
-		const result = [];
+			// Greedy coin change algorithm
+			async function greedyCoinChange(coins, amount) {
+				let remaining = amount;
+				const result = [];
 
-		// Sort coins in descending order
-		const sortedCoins = [...coins].sort((a, b) => b - a);
+				// Sort coins in descending order
+				const sortedCoins = [...coins].sort((a, b) => b - a);
 
-		for (const coin of sortedCoins) {
-			// Use as many of this coin as possible
-			while (remaining >= coin) {
-				result.push(coin);
-				remaining = parseFloat((remaining - coin).toFixed(2)); // Fix floating point precision
+				for (const coin of sortedCoins) {
+					// Use as many of this coin as possible
+					while (remaining >= coin) {
+						result.push(coin);
+						remaining = parseFloat((remaining - coin).toFixed(2)); // Fix floating point precision
 
-				// Update visualization
-				selectedCoins.push(coin);
-				remainingAmount = remaining;
+						// Update visualization
+						selectedCoins.push(coin);
+						remainingAmount = remaining;
 
+						addStep(
+							`Selected ${coinNames[coin]} (${coin.toFixed(
+								2
+							)}), remaining: $${remaining.toFixed(2)}`,
+							"visited-node"
+						);
+						drawCoinChangeState(sortedCoins, selectedCoins, remaining);
+
+						await new Promise((resolve) =>
+							trackableSetTimeout(resolve, 400)
+						); // Faster animation (was 800)
+					}
+				}
+
+				// Show final result
 				addStep(
-					`Selected ${coinNames[coin]} (${coin.toFixed(
-						2
-					)}), remaining: $${remaining.toFixed(2)}`,
-					"visited-node"
+					`Coin change complete! Used ${result.length} coins: ${result
+						.map((c) => `$${c.toFixed(2)}`)
+						.join(", ")}`,
+					"path-node"
 				);
-				drawCoinChangeState(sortedCoins, selectedCoins, remaining);
-
-				await new Promise((resolve) => trackableSetTimeout(resolve, 400)); // Faster animation (was 800)
+				drawCoinChangeState(sortedCoins, selectedCoins, 0);
+				algorithmComplete(); // Reset flag when complete
 			}
 		}
-
-		// Show final result
-		addStep(
-			`Coin change complete! Used ${result.length} coins: ${result
-				.map((c) => `$${c.toFixed(2)}`)
-				.join(", ")}`,
-			"path-node"
-		);
-		drawCoinChangeState(sortedCoins, selectedCoins, 0);
-		algorithmComplete(); // Reset flag when complete
-	}
+	);
 }
 
 function drawCoinChangeState(availableCoins, selectedCoins, remainingAmount) {
