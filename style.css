@@ -2905,7 +2905,7 @@ nav ul li.dropdown .dropbtn.active::before {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
-		padding-top: 50%;
+		padding-top: 40%;
 		position: relative;
 		padding-left: 0%;
 	}
