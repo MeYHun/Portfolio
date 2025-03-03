@@ -2905,9 +2905,9 @@ nav ul li.dropdown .dropbtn.active::before {
 		display: flex;
 		justify-content: center;
 		align-items: flex-start;
-		padding-top: 56%;
+		padding-top: 50%;
 		position: relative;
-		padding-left: 8%;
+		padding-left: 0%;
 	}
 }
 
