@@ -223,6 +223,70 @@ function trackableSetTimeout(callback, delay) {
 document.addEventListener("DOMContentLoaded", function () {
 	const algorithmSelect = document.getElementById("algorithm");
 	const runButton = document.getElementById("run-algorithm");
+	const algorithmParams = document.getElementById("algorithm-params");
+
+	// Define parameter configurations for each algorithm
+	const algorithmConfigs = {
+		insertion: {
+			label: "Number of elements (5-20)",
+			type: "number",
+			min: 5,
+			max: 20,
+			default: 15,
+		},
+		binary: {
+			label: "Number of elements (5-20)",
+			type: "number",
+			min: 5,
+			max: 20,
+			default: 15,
+		},
+		merge: {
+			label: "Number of elements (5-15)",
+			type: "number",
+			min: 5,
+			max: 15,
+			default: 12,
+		},
+		quick: {
+			label: "Number of elements (5-15)",
+			type: "number",
+			min: 5,
+			max: 15,
+			default: 12,
+		},
+		greedy: {
+			label: "Target amount (1-100)",
+			type: "number",
+			min: 1,
+			max: 100,
+			step: 0.01,
+			default: 47.65,
+		},
+	};
+
+	// Update parameters when algorithm is selected
+	algorithmSelect.addEventListener("change", function () {
+		const selectedAlgorithm = this.value;
+		const config = algorithmConfigs[selectedAlgorithm];
+
+		if (config) {
+			algorithmParams.innerHTML = `
+				<label for="algorithm-input">${config.label}</label>
+				<input type="${config.type}" 
+					id="algorithm-input" 
+					min="${config.min}" 
+					max="${config.max}" 
+					step="${config.step || 1}" 
+					value="${config.default}"
+					required>
+			`;
+			algorithmParams.classList.add("visible");
+		} else {
+			algorithmParams.innerHTML = "";
+			algorithmParams.classList.remove("visible");
+		}
+	});
 
 	function runAlgorithm() {
 		console.log("Algorithm Run Button Clicked");
@@ -230,7 +294,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		// If an algorithm is already running, stop it
 		if (isAlgorithmRunning) {
 			stopCurrentAlgorithm();
-			// Add a small message to the steps container
 			addStep("Previous algorithm stopped", "current-step");
 		}
 
@@ -240,31 +303,45 @@ document.addEventListener("DOMContentLoaded", function () {
 		// Set the flag to indicate an algorithm is running
 		isAlgorithmRunning = true;
 
+		// Get input value if needed
+		let inputValue = null;
+		if (algorithmConfigs[selectedAlgorithm]) {
+			const input = document.getElementById("algorithm-input");
+			if (input) {
+				inputValue = parseFloat(input.value);
+				if (isNaN(inputValue)) {
+					addStep("Please enter a valid number", "current-step");
+					isAlgorithmRunning = false;
+					return;
+				}
+			}
+		}
+
 		switch (selectedAlgorithm) {
 			case "insertion":
-				visualizeInsertionSort();
+				visualizeInsertionSort(inputValue);
 				break;
 			case "binary":
-				visualizeBinarySearch();
+				visualizeBinarySearch(inputValue);
 				break;
 			case "bfs":
 				visualizeBreadthFirstSearch();
 				break;
 			case "merge":
-				visualizeMergeSort();
+				visualizeMergeSort(inputValue);
 				break;
 			case "quick":
-				visualizeQuickSort();
+				visualizeQuickSort(inputValue);
 				break;
 			case "greedy":
-				visualizeGreedyAlgorithm();
+				visualizeGreedyAlgorithm(inputValue);
 				break;
 			case "dfs":
 				visualizeDepthFirstSearch();
 				break;
 			default:
-				alert("Please select an algorithm.");
-				isAlgorithmRunning = false; // Reset flag if no algorithm is selected
+				addStep("Please select an algorithm", "current-step");
+				isAlgorithmRunning = false;
 		}
 	}
 
@@ -511,20 +588,8 @@ const ctx = canvas.getContext("2d");
 //     }
 // });
 
-function visualizeInsertionSort() {
+function visualizeInsertionSort(numElements = 15) {
 	clearSteps();
-
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Insertion Sort (5-20):", "15")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -574,20 +639,8 @@ function visualizeInsertionSort() {
 	trackableSetTimeout(insertionSortStep, 250); // Faster animation (was 500)
 }
 
-function visualizeBinarySearch() {
+function visualizeBinarySearch(numElements = 15) {
 	clearSteps();
-
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Binary Search (5-20):", "15")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -817,20 +870,8 @@ function visualizeBreadthFirstSearch() {
 	}
 }
 
-function visualizeMergeSort() {
+function visualizeMergeSort(numElements = 12) {
 	clearSteps();
-
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Merge Sort (5-15):", "12")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -951,20 +992,8 @@ function visualizeMergeSort() {
 	}
 }
 
-function visualizeQuickSort() {
+function visualizeQuickSort(numElements = 12) {
 	clearSteps();
-
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Quick Sort (5-15):", "12")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -1060,25 +1089,13 @@ function visualizeQuickSort() {
 	}
 }
 
-function visualizeGreedyAlgorithm() {
+function visualizeGreedyAlgorithm(targetAmount = 47.65) {
 	clearSteps();
 
-	// Prompt for target amount
-	const inputAmount = parseFloat(
-		prompt("Enter target amount for Coin Change (1-100):", "47.65")
-	);
-
-	// Check if user clicked Cancel
-	if (inputAmount === null || isNaN(inputAmount)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
-
 	// Validate input and use default if invalid
-	const targetAmount =
-		inputAmount && inputAmount > 0 && inputAmount <= 100
-			? parseFloat(inputAmount.toFixed(2))
+	const validatedAmount =
+		targetAmount && targetAmount > 0 && targetAmount <= 100
+			? parseFloat(targetAmount.toFixed(2))
 			: 47.65;
 
 	// Set up coin change problem
@@ -1094,12 +1111,12 @@ function visualizeGreedyAlgorithm() {
 		0.01: "Penny ($0.01)",
 	};
 
-	let remainingAmount = targetAmount;
+	let remainingAmount = validatedAmount;
 	const selectedCoins = [];
 
 	// Add initial step
 	addStep(
-		`Starting Greedy Coin Change for amount: $${targetAmount.toFixed(2)}`,
+		`Starting Greedy Coin Change for amount: $${validatedAmount.toFixed(2)}`,
 		"current-step"
 	);
 	addStep(
@@ -1110,7 +1127,7 @@ function visualizeGreedyAlgorithm() {
 	drawCoinChangeState(coins, selectedCoins, remainingAmount);
 
 	// Start greedy algorithm
-	trackableSetTimeout(() => greedyCoinChange(coins, targetAmount), 500); // Faster animation (was 1000)
+	trackableSetTimeout(() => greedyCoinChange(coins, validatedAmount), 500); // Faster animation (was 1000)
 
 	// Greedy coin change algorithm
 	async function greedyCoinChange(coins, amount) {
@@ -1138,7 +1155,7 @@ function visualizeGreedyAlgorithm() {
 				);
 				drawCoinChangeState(sortedCoins, selectedCoins, remaining);
 
-				await new Promise((resolve) => trackableSetTimeout(resolve, 400)); // Faster animation (was 800)
+				await new Promise((resolve) => trackableSetTimeout(resolve, 400));
 			}
 		}
 
