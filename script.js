@@ -223,6 +223,24 @@ function trackableSetTimeout(callback, delay) {
 document.addEventListener("DOMContentLoaded", function () {
 	const algorithmSelect = document.getElementById("algorithm");
 	const runButton = document.getElementById("run-algorithm");
+	const algorithmParameters = document.getElementById("algorithm-parameters");
+
+	// Show/hide parameters based on selected algorithm
+	algorithmSelect.addEventListener("change", function () {
+		const selectedAlgorithm = this.value;
+		if (selectedAlgorithm === "bfs" || selectedAlgorithm === "dfs") {
+			algorithmParameters.style.display = "none";
+		} else {
+			algorithmParameters.style.display = "block";
+		}
+	});
+
+	// Initial state
+	if (algorithmSelect.value === "bfs" || algorithmSelect.value === "dfs") {
+		algorithmParameters.style.display = "none";
+	} else {
+		algorithmParameters.style.display = "block";
+	}
 
 	function runAlgorithm() {
 		console.log("Algorithm Run Button Clicked");
@@ -514,17 +532,9 @@ const ctx = canvas.getContext("2d");
 function visualizeInsertionSort() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Insertion Sort (5-20):", "15")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+	// Get number of elements from input field
+	const numElementsInput = document.getElementById("num-elements");
+	const numElements = parseInt(numElementsInput.value);
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -577,17 +587,9 @@ function visualizeInsertionSort() {
 function visualizeBinarySearch() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Binary Search (5-20):", "15")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+	// Get number of elements from input field
+	const numElementsInput = document.getElementById("num-elements");
+	const numElements = parseInt(numElementsInput.value);
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -820,17 +822,9 @@ function visualizeBreadthFirstSearch() {
 function visualizeMergeSort() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Merge Sort (5-15):", "12")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+	// Get number of elements from input field
+	const numElementsInput = document.getElementById("num-elements");
+	const numElements = parseInt(numElementsInput.value);
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -954,17 +948,9 @@ function visualizeMergeSort() {
 function visualizeQuickSort() {
 	clearSteps();
 
-	// Prompt for number of elements
-	const numElements = parseInt(
-		prompt("Enter number of elements for Quick Sort (5-15):", "12")
-	);
-
-	// Check if user clicked Cancel
-	if (numElements === null || isNaN(numElements)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+	// Get number of elements from input field
+	const numElementsInput = document.getElementById("num-elements");
+	const numElements = parseInt(numElementsInput.value);
 
 	// Validate input and use default if invalid
 	const validatedNumElements =
@@ -1063,17 +1049,9 @@ function visualizeQuickSort() {
 function visualizeGreedyAlgorithm() {
 	clearSteps();
 
-	// Prompt for target amount
-	const inputAmount = parseFloat(
-		prompt("Enter target amount for Coin Change (1-100):", "47.65")
-	);
-
-	// Check if user clicked Cancel
-	if (inputAmount === null || isNaN(inputAmount)) {
-		addStep("Visualization canceled", "current-step");
-		algorithmComplete(); // Reset flag if canceled
-		return;
-	}
+	// Get target amount from input field
+	const numElementsInput = document.getElementById("num-elements");
+	const inputAmount = parseFloat(numElementsInput.value);
 
 	// Validate input and use default if invalid
 	const targetAmount =

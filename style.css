@@ -3307,6 +3307,34 @@ nav ul li.dropdown .dropbtn.active::before {
 		padding-right: 32px;
 	}
 
+	/* Show the number input field in mobile view */
+	#algorithm-parameters {
+		width: 100%;
+		margin-bottom: 5px;
+	}
+
+	#algorithm-parameters label {
+		display: block;
+		margin-bottom: 8px;
+		font-size: 14px;
+		color: var(--text-color);
+	}
+
+	#algorithm-parameters input[type="number"] {
+		width: 90%;
+		max-width: 90%;
+		padding: 6px 12px;
+		font-size: 14px;
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		border: 1px solid var(--highlight-color);
+		border-radius: 4px;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		margin-top: 2px;
+	}
+
 	#run-algorithm {
 		width: 100%;
 		max-width: 100%;
@@ -3339,8 +3367,8 @@ nav ul li.dropdown .dropbtn.active::before {
 	}
 
 	#steps-container {
-		width: 100%;
-		max-width: 100%;
+		width: 92%;
+		max-width: 92%;
 		max-height: 200px;
 		padding: 10px;
 		margin: 10px 0;
@@ -3348,37 +3376,6 @@ nav ul li.dropdown .dropbtn.active::before {
 		border-radius: 8px;
 		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 		overflow-y: auto;
-	}
-
-	/* Show and style algorithm parameters in mobile view */
-	#algorithm-parameters {
-		display: block;
-		width: 100%;
-		max-width: 100%;
-		padding: 10px;
-		margin: 10px 0;
-		background-color: var(--container-bg);
-		border-radius: 8px;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-	}
-
-	#algorithm-parameters label {
-		display: block;
-		width: 100%;
-		font-size: 14px;
-		margin-bottom: 5px;
-	}
-
-	#algorithm-parameters input {
-		width: 100%;
-		max-width: 100%;
-		padding: 8px 12px;
-		font-size: 14px;
-		margin-bottom: 10px;
-		background-color: var(--container-bg);
-		color: var(--text-color);
-		border: 1px solid var(--highlight-color);
-		border-radius: 4px;
 	}
 
 	/* Dark mode adjustments */
@@ -3390,9 +3387,14 @@ nav ul li.dropdown .dropbtn.active::before {
 	}
 
 	.dark-mode #algorithm-canvas,
-	.dark-mode #steps-container,
-	.dark-mode #algorithm-parameters {
+	.dark-mode #steps-container {
 		background-color: var(--container-bg);
 		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	}
+
+	.dark-mode #algorithm-parameters input[type="number"] {
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		border-color: var(--highlight-color);
 	}
 }
