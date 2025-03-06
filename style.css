@@ -1483,7 +1483,7 @@ nav ul li.dropdown .dropbtn.active::before {
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	max-width: 900px;
+	width: 90%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -3295,7 +3295,7 @@ nav ul li.dropdown .dropbtn.active::before {
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
-		max-width: 900px;
+		width: 90%;
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -3382,8 +3382,10 @@ nav ul li.dropdown .dropbtn.active::before {
 
 .algorithm-params {
 	display: none;
-	width: 100%;
-	max-width: 250px;
+	width: 90%;
+	max-width: 90%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .algorithm-params.visible {
@@ -3411,6 +3413,25 @@ nav ul li.dropdown .dropbtn.active::before {
 @media (max-width: 768px) {
 	.algorithm-params {
 		max-width: 90%;
-		margin: 10px 0;
+		margin: 10px auto;
+		width: 90%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	#algorithm-selection {
+		width: 90%;
+		margin: 0 auto 20px;
+	}
+
+	.algorithm-params input {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.algorithm-params label {
+		width: 100%;
+		text-align: left;
 	}
 }
