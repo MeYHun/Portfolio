@@ -3455,4 +3455,84 @@ nav ul li.dropdown .dropbtn.active::before {
 		background-color: var(--container-bg);
 		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 	}
+
+	/* LinkedIn iframe container styles */
+	.linkedin-iframe {
+		width: 100%;
+		max-width: 100%;
+		height: auto;
+		min-height: 500px;
+		border: none;
+		margin: 0 auto;
+		display: block;
+		background-color: var(--container-bg);
+		border-radius: 8px;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+		overflow: visible;
+	}
+
+	.linkedin-iframe #algorithm-visualizer {
+		width: 100%;
+		max-width: 100%;
+		padding: 15px;
+		box-sizing: border-box;
+		margin: 0 auto;
+		position: relative;
+		z-index: 1;
+	}
+
+	.linkedin-iframe #algorithm-parameters {
+		position: relative;
+		z-index: 2;
+		width: 100%;
+		max-width: 100%;
+		padding: 15px;
+		box-sizing: border-box;
+		margin: 10px 0;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		background-color: var(--container-bg);
+		border-radius: 8px;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.linkedin-iframe .parameter-group {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		position: relative;
+		z-index: 3;
+	}
+
+	.linkedin-iframe .parameter-group input {
+		width: 100%;
+		padding: 8px 12px;
+		font-size: 14px;
+		border: 1px solid var(--highlight-color);
+		border-radius: 4px;
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		position: relative;
+		z-index: 4;
+	}
+
+	.linkedin-iframe .parameter-group input:focus {
+		outline: none;
+		border-color: var(--highlight-color);
+		box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
+	}
+
+	/* Dark mode adjustments for LinkedIn iframe */
+	.dark-mode .linkedin-iframe {
+		background-color: var(--container-bg);
+	}
+
+	.dark-mode .linkedin-iframe #algorithm-parameters,
+	.dark-mode .linkedin-iframe .parameter-group input {
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		border-color: var(--highlight-color);
+	}
 }
