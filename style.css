@@ -3270,56 +3270,6 @@ nav ul li.dropdown .dropbtn.active::before {
 		margin: 0 auto;
 	}
 
-	/* Number input specific styles */
-	input[type="number"] {
-		-moz-appearance: textfield;
-		width: 100%;
-		padding: 8px 12px;
-		font-size: 14px;
-		border: 1px solid var(--highlight-color);
-		border-radius: 4px;
-		background-color: var(--container-bg);
-		color: var(--text-color);
-	}
-
-	input[type="number"]::-webkit-inner-spin-button,
-	input[type="number"]::-webkit-outer-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
-
-	input[type="number"]:focus {
-		outline: none;
-		border-color: var(--highlight-color);
-		box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
-	}
-
-	/* Ensure number inputs work in any container */
-	#algorithm-parameters input[type="number"],
-	.parameter-group input[type="number"] {
-		width: 100%;
-		max-width: 100%;
-		padding: 8px 12px;
-		font-size: 14px;
-		border: 1px solid var(--highlight-color);
-		border-radius: 4px;
-		background-color: var(--container-bg);
-		color: var(--text-color);
-		-webkit-appearance: none;
-		-moz-appearance: textfield;
-	}
-
-	/* Dark mode adjustments for number inputs */
-	.dark-mode input[type="number"] {
-		background-color: var(--container-bg);
-		color: var(--text-color);
-		border-color: var(--highlight-color);
-	}
-
-	.dark-mode input[type="number"]:focus {
-		box-shadow: 0 0 0 2px rgba(126, 200, 227, 0.2);
-	}
-
 	#algorithm-selection {
 		width: 100%;
 		max-width: 100%;
@@ -3347,6 +3297,14 @@ nav ul li.dropdown .dropbtn.active::before {
 		color: var(--text-color);
 		border: 1px solid var(--highlight-color);
 		border-radius: 4px;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+		background-repeat: no-repeat;
+		background-position: right 8px center;
+		background-size: 16px;
+		padding-right: 32px;
 	}
 
 	#run-algorithm {
@@ -3392,147 +3350,22 @@ nav ul li.dropdown .dropbtn.active::before {
 		overflow-y: auto;
 	}
 
-	/* Algorithm parameters styles */
+	/* Hide algorithm parameters in mobile view */
 	#algorithm-parameters {
-		width: 100%;
-		max-width: 100%;
-		padding: 10px;
-		box-sizing: border-box;
-		margin: 10px 0;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		background-color: var(--container-bg);
-		border-radius: 8px;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-	}
-
-	.parameter-group {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-	}
-
-	.parameter-group label {
-		font-size: 14px;
-		color: var(--text-color);
-		margin-bottom: 5px;
-	}
-
-	.parameter-group input {
-		width: 100%;
-		padding: 8px 12px;
-		font-size: 14px;
-		border: 1px solid var(--highlight-color);
-		border-radius: 4px;
-		background-color: var(--container-bg);
-		color: var(--text-color);
-	}
-
-	.parameter-group input:focus {
-		outline: none;
-		border-color: var(--highlight-color);
-		box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
+		display: none;
 	}
 
 	/* Dark mode adjustments */
-	.dark-mode #algorithm,
-	.dark-mode .parameter-group input {
+	.dark-mode #algorithm {
 		background-color: var(--container-bg);
 		color: var(--text-color);
 		border-color: var(--highlight-color);
-	}
-
-	.dark-mode #algorithm:focus,
-	.dark-mode .parameter-group input:focus {
-		box-shadow: 0 0 0 2px rgba(126, 200, 227, 0.2);
+		background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 	}
 
 	.dark-mode #algorithm-canvas,
-	.dark-mode #steps-container,
-	.dark-mode #algorithm-parameters {
+	.dark-mode #steps-container {
 		background-color: var(--container-bg);
 		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-	}
-
-	/* LinkedIn iframe container styles */
-	.linkedin-iframe {
-		width: 100%;
-		max-width: 100%;
-		height: auto;
-		min-height: 500px;
-		border: none;
-		margin: 0 auto;
-		display: block;
-		background-color: var(--container-bg);
-		border-radius: 8px;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-		overflow: visible;
-	}
-
-	.linkedin-iframe #algorithm-visualizer {
-		width: 100%;
-		max-width: 100%;
-		padding: 15px;
-		box-sizing: border-box;
-		margin: 0 auto;
-		position: relative;
-		z-index: 1;
-	}
-
-	.linkedin-iframe #algorithm-parameters {
-		position: relative;
-		z-index: 2;
-		width: 100%;
-		max-width: 100%;
-		padding: 15px;
-		box-sizing: border-box;
-		margin: 10px 0;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		background-color: var(--container-bg);
-		border-radius: 8px;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-	}
-
-	.linkedin-iframe .parameter-group {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-		position: relative;
-		z-index: 3;
-	}
-
-	.linkedin-iframe .parameter-group input {
-		width: 100%;
-		padding: 8px 12px;
-		font-size: 14px;
-		border: 1px solid var(--highlight-color);
-		border-radius: 4px;
-		background-color: var(--container-bg);
-		color: var(--text-color);
-		position: relative;
-		z-index: 4;
-	}
-
-	.linkedin-iframe .parameter-group input:focus {
-		outline: none;
-		border-color: var(--highlight-color);
-		box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
-	}
-
-	/* Dark mode adjustments for LinkedIn iframe */
-	.dark-mode .linkedin-iframe {
-		background-color: var(--container-bg);
-	}
-
-	.dark-mode .linkedin-iframe #algorithm-parameters,
-	.dark-mode .linkedin-iframe .parameter-group input {
-		background-color: var(--container-bg);
-		color: var(--text-color);
-		border-color: var(--highlight-color);
 	}
 }
