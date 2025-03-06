@@ -3350,9 +3350,35 @@ nav ul li.dropdown .dropbtn.active::before {
 		overflow-y: auto;
 	}
 
-	/* Hide algorithm parameters in mobile view */
+	/* Show and style algorithm parameters in mobile view */
 	#algorithm-parameters {
-		display: none;
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		padding: 10px;
+		margin: 10px 0;
+		background-color: var(--container-bg);
+		border-radius: 8px;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	#algorithm-parameters label {
+		display: block;
+		width: 100%;
+		font-size: 14px;
+		margin-bottom: 5px;
+	}
+
+	#algorithm-parameters input {
+		width: 100%;
+		max-width: 100%;
+		padding: 8px 12px;
+		font-size: 14px;
+		margin-bottom: 10px;
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		border: 1px solid var(--highlight-color);
+		border-radius: 4px;
 	}
 
 	/* Dark mode adjustments */
@@ -3364,7 +3390,8 @@ nav ul li.dropdown .dropbtn.active::before {
 	}
 
 	.dark-mode #algorithm-canvas,
-	.dark-mode #steps-container {
+	.dark-mode #steps-container,
+	.dark-mode #algorithm-parameters {
 		background-color: var(--container-bg);
 		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 	}
