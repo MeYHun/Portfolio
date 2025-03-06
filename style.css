@@ -3270,6 +3270,56 @@ nav ul li.dropdown .dropbtn.active::before {
 		margin: 0 auto;
 	}
 
+	/* Number input specific styles */
+	input[type="number"] {
+		-moz-appearance: textfield;
+		width: 100%;
+		padding: 8px 12px;
+		font-size: 14px;
+		border: 1px solid var(--highlight-color);
+		border-radius: 4px;
+		background-color: var(--container-bg);
+		color: var(--text-color);
+	}
+
+	input[type="number"]::-webkit-inner-spin-button,
+	input[type="number"]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input[type="number"]:focus {
+		outline: none;
+		border-color: var(--highlight-color);
+		box-shadow: 0 0 0 2px rgba(94, 181, 218, 0.2);
+	}
+
+	/* Ensure number inputs work in any container */
+	#algorithm-parameters input[type="number"],
+	.parameter-group input[type="number"] {
+		width: 100%;
+		max-width: 100%;
+		padding: 8px 12px;
+		font-size: 14px;
+		border: 1px solid var(--highlight-color);
+		border-radius: 4px;
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		-webkit-appearance: none;
+		-moz-appearance: textfield;
+	}
+
+	/* Dark mode adjustments for number inputs */
+	.dark-mode input[type="number"] {
+		background-color: var(--container-bg);
+		color: var(--text-color);
+		border-color: var(--highlight-color);
+	}
+
+	.dark-mode input[type="number"]:focus {
+		box-shadow: 0 0 0 2px rgba(126, 200, 227, 0.2);
+	}
+
 	#algorithm-selection {
 		width: 100%;
 		max-width: 100%;
