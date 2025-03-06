@@ -1483,7 +1483,7 @@ nav ul li.dropdown .dropbtn.active::before {
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	width: 90%;
+	max-width: 900px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -3290,14 +3290,11 @@ nav ul li.dropdown .dropbtn.active::before {
 
 	#algorithm-selection {
 		display: flex;
-		gap: 10px;
-		margin-bottom: 20px;
-		flex-wrap: wrap;
-		justify-content: center;
+		flex-direction: column;
 		align-items: center;
-		width: 90%;
-		margin-left: auto;
-		margin-right: auto;
+		width: 100%;
+		margin-bottom: 1rem;
+		order: 0; /* Controls at top */
 	}
 
 	#algorithm-selection label {
@@ -3378,60 +3375,4 @@ nav ul li.dropdown .dropbtn.active::before {
 .dark-mode .step-item {
 	background-color: rgba(0, 0, 0, 0.2);
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.algorithm-params {
-	display: none;
-	width: 90%;
-	max-width: 90%;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.algorithm-params.visible {
-	display: block;
-}
-
-.algorithm-params input {
-	padding: 8px 12px;
-	border-radius: 4px;
-	border: 1px solid var(--highlight-color);
-	background-color: var(--container-bg);
-	color: var(--text-color);
-	font-size: 14px;
-	width: 100%;
-}
-
-.algorithm-params label {
-	display: block;
-	margin-bottom: 5px;
-	font-size: 12px;
-	color: var(--text-color);
-	opacity: 0.8;
-}
-
-@media (max-width: 768px) {
-	.algorithm-params {
-		max-width: 90%;
-		margin: 10px auto;
-		width: 90%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	#algorithm-selection {
-		width: 90%;
-		margin: 0 auto 20px;
-	}
-
-	.algorithm-params input {
-		width: 100%;
-		max-width: 100%;
-	}
-
-	.algorithm-params label {
-		width: 100%;
-		text-align: left;
-	}
 }
