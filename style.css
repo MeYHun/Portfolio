@@ -3410,7 +3410,7 @@ nav ul li.dropdown .dropbtn.active::before {
 
 @media (max-width: 768px) {
 	.algorithm-params {
-		max-width: 100%;
+		max-width: 90%;
 		margin: 10px 0;
 	}
 }
